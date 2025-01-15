@@ -12,16 +12,12 @@ static extern bool AllocConsole();
 
 //Console.WriteLine("Hello, World!");
 //args 可帶入 env 變數
-static void Main()
-{
-    AllocConsole();
-    Server server = new Server([127, 0, 0, 1], 8080);
-    Task.Run(server.RunAsync);
-    Console.WriteLine(ScreenStream.RecordImageBytes().Length);
-    Application.EnableVisualStyles(); 
-    Application.SetCompatibleTextRenderingDefault(false); 
-    Application.Run(new 預覽視窗());
-}
 
-Main();
+AllocConsole();
+Server server = new Server([127, 0, 0, 1], 8080);
+Task.Run(server.RunAsync);
+Console.WriteLine(ScreenStream.RecordImageBytes().Length);
+Application.EnableVisualStyles(); 
+Application.SetCompatibleTextRenderingDefault(false); 
+Application.Run(new 預覽視窗());
 
