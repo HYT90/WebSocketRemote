@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35013.160
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebRTCRemote", "WebRTC\WebRTCRemote.csproj", "{0CD1379E-1D62-4B86-976A-1F2771BC545F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientConsoleRemote", "ClientConsoleRemote\ClientConsoleRemote.csproj", "{9A85701F-D579-4D97-9B3E-DC0801646EB9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScreenRecorderTutorial", "..\..\ScreenRecorderTutorial\ScreenRecorderTutorial\ScreenRecorderTutorial.csproj", "{3F15EF89-14C6-4E89-B482-CB61B34D745A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameServer", "..\..\..\SelfMadeGameServer\GameServer\GameServer.csproj", "{BBC75874-682F-4113-9374-F365951AD51F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0CD1379E-1D62-4B86-976A-1F2771BC545F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CD1379E-1D62-4B86-976A-1F2771BC545F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CD1379E-1D62-4B86-976A-1F2771BC545F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CD1379E-1D62-4B86-976A-1F2771BC545F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A85701F-D579-4D97-9B3E-DC0801646EB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A85701F-D579-4D97-9B3E-DC0801646EB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A85701F-D579-4D97-9B3E-DC0801646EB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A85701F-D579-4D97-9B3E-DC0801646EB9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F15EF89-14C6-4E89-B482-CB61B34D745A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F15EF89-14C6-4E89-B482-CB61B34D745A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F15EF89-14C6-4E89-B482-CB61B34D745A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F15EF89-14C6-4E89-B482-CB61B34D745A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBC75874-682F-4113-9374-F365951AD51F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBC75874-682F-4113-9374-F365951AD51F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBC75874-682F-4113-9374-F365951AD51F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBC75874-682F-4113-9374-F365951AD51F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A86F79DD-40B3-466C-BD1A-D02C08063ADE}
+	EndGlobalSection
+EndGlobal
