@@ -12,11 +12,9 @@ namespace WebRTCRemote
         private HttpListener httpListener;
 
 
-
-
-        public Server(byte[] ip, int port) 
+        public Server(IPAddress ip, int port) 
         {
-            IPEndPoint ep = new(new IPAddress(ip), port);
+            IPEndPoint ep = new(ip, port);
             endpoint = ep.ToString();
             httpListener = new HttpListener();
             httpListener.Prefixes.Add($"http://{endpoint}/");
@@ -48,7 +46,7 @@ namespace WebRTCRemote
 
         private static async Task Echo(WebSocket webSocket)
         {
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[Constants.PacketSize];
             try
             {
                 while (webSocket.State == WebSocketState.Open)
