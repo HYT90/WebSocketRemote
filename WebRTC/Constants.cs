@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,20 +16,13 @@ namespace WebRTCRemote
         public const int MS_PER_TICK = 1000 / TICKS_PER_SEC;
         public const float DisplayRatio = 1.25f;
         public const int PacketSize = 1024;
-
-        public const uint MOUSEEVENTF_MOVE = 0x0001 | 0x0002;
-        public const uint MOUSEEVENTF_LEFTDOWN = 0x0002;
-        public const uint MOUSEEVENTF_LEFTUP = 0x0004;
-        public const uint MOUSEEVENTF_CLICK = MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP;
-        public const uint MOUSEEVENTF_RIGHTDOWN = 0x0008;
-        public const uint MOUSEEVENTF_RIGHTUP = 0x0010;
-        public const uint MOUSEEVENTF_MIDDLEDOWN = 0x0020;
-        public const uint MOUSEEVENTF_MIDDLEUP = 0x0040;
-        public const uint MOUSEEVENTF_WHEEL = 0x0800;
-
+        //public static Hashtable hashtable = new(new Dictionary<string, int>());
         private Constants() { }
     }
 
+    /// <summary>
+    /// For P/Invoke Windows API user32.dll mouse_event
+    /// </summary>
     public enum MouseEvent : uint
     {
         MOUSEEVENTF_MOVE = 0x0001,
@@ -39,11 +33,15 @@ namespace WebRTCRemote
         MOUSEEVENTF_MIDDLEDOWN = 0x0020,
         MOUSEEVENTF_MIDDLEUP = 0x0040,
         MOUSEEVENTF_WHEEL = 0x0800,
-        MOUSEEVENTF_HWHEEL = 0x1000
+        MOUSEEVENTF_HWHEEL = 0x1000,
+        MOUSEEVENTF_LEFTCLICK = MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP,
+        MOUSEEVENTF_RIGHTCLICK = MOUSEEVENTF_RIGHTDOWN | MOUSEEVENTF_RIGHTUP,
     }
 
-
-    public enum VirtualKey : int
+    /// <summary>
+    /// For P/Invoke Windows API user32.dll event
+    /// </summary>
+    public enum KeyCode : uint
     {
         VK_LBUTTON = 0x01,
         VK_RBUTTON = 0x02,
@@ -155,6 +153,9 @@ namespace WebRTCRemote
         VK_F24 = 0x87
     }
 
+    /// <summary>
+    /// For P/Invoke Windows API user32.dll event
+    /// </summary>
     public enum SystemEvents : uint
     {
         WM_KEYDOWN = 0x0100,

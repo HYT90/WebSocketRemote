@@ -42,6 +42,20 @@ namespace WebRTCRemote
         // Windows API 中定義的標誌值。表示游標正在顯示。
         private const int CURSOR_SHOWING = 0x00000001;
 
+        private static void DrawCursor(Graphics g)
+        {
+            // 獲取滑鼠資訊
+            CURSORINFO cursorInfo;
+            cursorInfo.cbSize = Marshal.SizeOf(typeof(CURSORINFO));
+            if (GetCursorInfo(out cursorInfo) && cursorInfo.flags == CURSOR_SHOWING)
+            {
+                // 繪製滑鼠游標
+                Cursor cursor = new Cursor(cursorInfo.hCursor);
+                // 顯示並修正滑鼠位置
+                cursor.Draw(g, new Rectangle((int)((float)cursorInfo.ptScreenPos.X * MousePosRatio), (int)((float)cursorInfo.ptScreenPos.Y * MousePosRatio), cursor.Size.Width, cursor.Size.Height));
+            }
+        }
+
         static ScreenStream() 
         {
             ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DesktopMonitor");
@@ -63,16 +77,7 @@ namespace WebRTCRemote
             {
                 g.CopyFromScreen(Point.Empty, Point.Empty, bmp.Size);
 
-                // 獲取滑鼠資訊
-                CURSORINFO cursorInfo;
-                cursorInfo.cbSize = Marshal.SizeOf(typeof(CURSORINFO));
-                if (GetCursorInfo(out cursorInfo) && cursorInfo.flags == CURSOR_SHOWING)
-                { 
-                    // 繪製滑鼠游標
-                    Cursor cursor = new Cursor(cursorInfo.hCursor); 
-                    // 顯示並修正滑鼠位置
-                    cursor.Draw(g, new Rectangle((int)((float)cursorInfo.ptScreenPos.X * MousePosRatio), (int)((float)cursorInfo.ptScreenPos.Y * MousePosRatio), cursor.Size.Width, cursor.Size.Height)); 
-                }
+                DrawCursor(g);
             }
             return bmp;
         }

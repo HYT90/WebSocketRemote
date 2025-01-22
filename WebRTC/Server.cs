@@ -5,11 +5,15 @@ using System.Text.Json;
 
 namespace WebRTCRemote
 {
-    internal static class Server
+    internal class Server
     {
         private static string? endpoint;
         private static HttpListener? httpListener;
         private static WebSocket? webSocket;
+        private delegate void Handle(byte[] buffer, int size);
+        private static Handle handle = RemoteHandle.DataContentReceived;
+
+        private Server() { }
 
         public static void InitalizeServer(IPAddress ip, int port)
         {
@@ -69,7 +73,8 @@ namespace WebRTCRemote
 
                         //Console.WriteLine(message);
 
-                        RemoteHandle.DataContentReceived(buffer, result.Count);
+                        handle(buffer, result.Count);
+
                     }
                     //byte[] responseBuffer = Encoding.UTF8.GetBytes("Echo from server: " + message);
                     //await webSocket.SendAsync(new ArraySegment<byte>(responseBuffer), WebSocketMessageType.Text, true, CancellationToken.None);
@@ -78,7 +83,6 @@ namespace WebRTCRemote
             catch (Exception ex)
             {
                 Console.WriteLine($"Here is from Echo(). {ex.Message}");
-                webSocket.Dispose();
             }
             
         }
@@ -101,7 +105,6 @@ namespace WebRTCRemote
             }catch(Exception ex)
             {
                 Console.WriteLine($"Here is from Send(). {ex.Message}");
-                webSocket.Dispose();
             }
             
             

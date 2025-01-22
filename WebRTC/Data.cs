@@ -2,13 +2,12 @@
 {
     public class Data
     {
-        public string? Type { get; private set; }
+        public int Type { get; set; }
 
         // 滑鼠位置
-        public int? X { get; set; }
+        public int? X {get;set;}
         public int? Y { get; set; }
-
-        // Keyboad
-        public string? Key { get; set; }
+        // Keyboard
+        public int? Key { get; set; }
     }
 }
