@@ -12,7 +12,7 @@ namespace WebRTCRemote
         public const string IP = "192.168.0.17";
         public const int Port = 8080;
 
-        public const int TICKS_PER_SEC = 150;
+        public const int TICKS_PER_SEC = 50;
         public const int MS_PER_TICK = 1000 / TICKS_PER_SEC;
         public const float DisplayRatio = 1.25f;
         public const int PacketSize = 1024;

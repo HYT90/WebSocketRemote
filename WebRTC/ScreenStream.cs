@@ -105,7 +105,7 @@ namespace WebRTCRemote
 
             using(MemoryStream ms = new MemoryStream())
             {
-                RecordImage().Save(ms, ImageFormat.Png);
+                RecordImage().Save(ms, ImageFormat.Jpeg);
                 imageBytes = ms.ToArray();
                 //Bitmap bmp = new(ms); 轉回bmp類型
             }
@@ -115,6 +115,30 @@ namespace WebRTCRemote
         public static string RecordImageBase64String()
         {
             return Convert.ToBase64String(RecordImageBytes());
+        }
+
+        /// <summary>
+        /// LockBits 方法用於直接存取位圖的像素數據。它通過以下步驟實現：
+        ///鎖定位圖：使用 LockBits 鎖定位圖並取得 BitmapData，其中包含有關圖像數據的資訊。
+        ///存取數據指標：取得圖像數據的指標，這樣可以直接讀取或修改圖像的像素值。
+        ///解鎖位圖：修改完成後，使用 UnlockBits 解鎖位圖。
+        ///此方法主要用於高效的像素級別的圖像處理，適合需要頻繁讀寫圖像數據的操作。
+        /// </summary>
+        /// <param name="bitmap"></param>
+        /// <returns></returns>
+        public static byte[] ConvertBitmapToByteArray()
+        {
+            var bitmap = RecordImage();
+            BitmapData bmpData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+
+            int numBytes = bmpData.Stride * bitmap.Height;
+            byte[] bmpBytes = new byte[numBytes];
+
+            Marshal.Copy(bmpData.Scan0, bmpBytes, 0, numBytes);
+            bitmap.UnlockBits(bmpData);
+
+            return bmpBytes;
         }
 
         //擷取音源輸出

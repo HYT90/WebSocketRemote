@@ -13,6 +13,12 @@
   <script type="text/javascript">
     const socketEvent = document.getElementById("socketEvent");
     const screenCapture = document.getElementById("ScreenCapture");
+
+    const frameBuffer = [];
+    setInterval(function () {
+      if (frameBuffer.length <= 0) return;
+      screenCapture.src = frameBuffer.shift();
+    }, 10);
     // 創建一個新的WebSocket物件
     var socket = InitialWS();
 
@@ -86,7 +92,7 @@
       socket.addEventListener("message", function (event) {
         console.log("來自伺服器的訊息");
         const base64_img = `data:image/png;base64,${event.data}`;
-        screenCapture.src = base64_img;
+        frameBuffer.push(base64_img);
       });
 
       socket.addEventListener("error", function (event) {

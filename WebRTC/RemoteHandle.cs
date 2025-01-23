@@ -11,7 +11,7 @@ namespace WebRTCRemote
         public static void DataContentReceived(byte[] buffer, int Size)
         {
             var message = Encoding.UTF8.GetString(buffer, 0, Size);
-            Data data = JsonSerializer.Deserialize<Data>(message)!;
+            Data data = JsonSerializer.Deserialize<Data>(message);
 
 
             Console.WriteLine(message);

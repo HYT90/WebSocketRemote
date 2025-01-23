@@ -2,6 +2,10 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using SIPSorcery.Net;
+using SIPSorcery.Media;
+using SIPSorceryMedia.Abstractions;
+using System.Net.Sockets;
 
 namespace WebRTCRemote
 {
@@ -38,8 +42,8 @@ namespace WebRTCRemote
 
                     //var send = Send();
                     //var echo = Echo();
-                    Task.Run(Send);
-                    await Echo();
+                    Task.Run(Echo);
+                    await Send();
 
                     //await Task.WhenAll(echo, send);
                 }
@@ -96,6 +100,8 @@ namespace WebRTCRemote
                 {
                     var data = Encoding.UTF8.GetBytes(ScreenStream.RecordImageBase64String());
                     await webSocket.SendAsync(new ArraySegment<byte>(data), WebSocketMessageType.Text, true, CancellationToken.None);
+
+
                     nextLoop.AddMilliseconds(Constants.MS_PER_TICK);
                     if(nextLoop > DateTime.Now)
                     {
@@ -108,6 +114,25 @@ namespace WebRTCRemote
             }
             
             
+        }
+    }
+
+    public class WebRTCVideo
+    {
+        private static RTCPeerConnection _peerConnection;
+        private static VideoTestPatternSource videoSource;
+        static WebRTCVideo()
+        {
+            _peerConnection = new RTCPeerConnection();
+            videoSource = new VideoTestPatternSource();
+            videoSource.SetFrameRate(30);
+            var videoTrack = new MediaStreamTrack(videoSource.GetVideoSourceFormats()[0], MediaStreamStatusEnum.SendOnly);
+            _peerConnection.addTrack(videoTrack);
+        }
+
+        public static void CaptureAndSend()
+        {
+            byte[] frameData = ScreenStream.ConvertBitmapToByteArray();
         }
     }
 }
