@@ -16,7 +16,7 @@
 
     const frameBuffer = [];
     setInterval(function () {
-      if (frameBuffer.length <= 0) return;
+      if (frameBuffer.length <= 10) return;
       screenCapture.src = frameBuffer.shift();
     }, 10);
     // 創建一個新的WebSocket物件
@@ -93,6 +93,7 @@
         console.log("來自伺服器的訊息");
         const base64_img = `data:image/png;base64,${event.data}`;
         frameBuffer.push(base64_img);
+        console.log(frameBuffer.length);
       });
 
       socket.addEventListener("error", function (event) {

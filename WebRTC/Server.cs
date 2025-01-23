@@ -40,12 +40,10 @@ namespace WebRTCRemote
                     HttpListenerWebSocketContext wsContext = await context.AcceptWebSocketAsync(null);
                     webSocket = wsContext.WebSocket;
 
-                    //var send = Send();
-                    //var echo = Echo();
-                    Task.Run(Echo);
-                    await Send();
+                    var send = Send();
+                    var echo = Echo();
 
-                    //await Task.WhenAll(echo, send);
+                    await Task.WhenAll(echo, send);
                 }
                 else
                 {
