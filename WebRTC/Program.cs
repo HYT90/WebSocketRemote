@@ -24,9 +24,10 @@ AllocConsole();
 int errorCode = Marshal.GetLastWin32Error();
 
 //Console.WriteLine("畫面容量大小： " + ScreenStream.RecordImageBytes().Length + " Bytes.");
-Server.InitalizeServer(IPAddress.Parse(Constants.IP), Constants.Port);
-await Server.RunAsync();
+//Server.InitalizeServer(IPAddress.Parse(Constants.IP), Constants.Port);
+//await Server.RunAsync();
 
+WebRTCServer.Run();
 
 //Application.EnableVisualStyles(); 
 //Application.SetCompatibleTextRenderingDefault(false); 
