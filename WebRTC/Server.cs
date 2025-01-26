@@ -34,8 +34,9 @@ namespace WebRTCRemote
         {
             httpListener.Start();
             Console.WriteLine($"WebSocket server started at ws://{endpoint}/");
-            while (webSocket == null || webSocket.State != WebSocketState.Open)
+            while (true)
             {
+                Console.WriteLine("Listening...");
                 HttpListenerContext context = await httpListener.GetContextAsync();
                 if (context.Request.IsWebSocketRequest)
                 {
@@ -43,10 +44,15 @@ namespace WebRTCRemote
                     HttpListenerWebSocketContext wsContext = await context.AcceptWebSocketAsync(null);
                     webSocket = wsContext.WebSocket;
 
-                    var send = Send();
-                    var echo = Echo();
+                    // blocking
+                    //var send = Send();
+                    //var echo = Echo();
+                    //await Task.WhenAll(echo, send);
 
-                    await Task.WhenAll(echo, send);
+                    // no blocking
+                    Task.Run(Send);
+                    await Echo();
+                    //Task.Run(Echo);
                 }
                 else
                 {
@@ -59,6 +65,8 @@ namespace WebRTCRemote
         private static async Task Echo()
         {
             byte[] buffer = new byte[Constants.PacketSize];
+            Console.WriteLine("Waiting for sending form client...");
+            
             try
             {
                 while (webSocket.State == WebSocketState.Open)
@@ -75,13 +83,7 @@ namespace WebRTCRemote
 
                         if (result.Count>0)
                         {
-                            //string message = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                            //var data = JsonSerializer.Deserialize<Data>(message);
-
-                            //Console.WriteLine(message);
-
                             handle(buffer, result.Count);
-
                         }
                         //byte[] responseBuffer = Encoding.UTF8.GetBytes("Echo from server: " + message);
                         //await webSocket.SendAsync(new ArraySegment<byte>(responseBuffer), WebSocketMessageType.Text, true, CancellationToken.None);
@@ -103,6 +105,7 @@ namespace WebRTCRemote
         private static async Task Send()
         {
             DateTime nextLoop = DateTime.Now;
+            Console.WriteLine("Sending to client...");
             try
             {
                 while(webSocket.State == WebSocketState.Open && nextLoop < DateTime.Now)
@@ -179,15 +182,15 @@ namespace WebRTCRemote
             // Wait for a signal saying the call failed, was cancelled with ctrl-c or completed.
             exitMe.WaitOne();
         }
-        static private VIDEO_SOURCE VideoSourceType = VIDEO_SOURCE.FILE_OR_STREAM;
-        static private AUDIO_SOURCE AudioSourceType = AUDIO_SOURCE.FILE_OR_STREAM;
-        static private String VideoSourceFile = @"E:\anime\gup\ガールズ&パンツァー 劇場版 (BDrip 1280x720).mp4"; 
-        static private String AudioSourceFile = @"E:\anime\gup\ガールズ&パンツァー 劇場版 (BDrip 1280x720).mp4";
+        static private VIDEO_SOURCE VideoSourceType = VIDEO_SOURCE.SCREEN;
+        static private AUDIO_SOURCE AudioSourceType = AUDIO_SOURCE.MICROPHONE;
+        static private String VideoSourceFile = @"E:\7788\lucy tyler.mkv"; 
+        static private String AudioSourceFile = @"E:\7788\lucy tyler.mkv";
         static private bool RepeatVideoFile = true; // Used if VideoSource == VIDEO_SOURCE.FILE_OR_STREAM
         static private bool RepeatAudioFile = true; // Used if AudioSource == AUDIO_SOURCE.FILE_OR_STREAM
 
         //static private VIDEO_SOURCE VideoSourceType = VIDEO_SOURCE.SCREEN;
-        static private VideoCodecsEnum VideoCodec = VideoCodecsEnum.H265;
+        static private VideoCodecsEnum VideoCodec = VideoCodecsEnum.VP8;
         static private AudioCodecsEnum AudioCodec = AudioCodecsEnum.PCMU;
 
         // Simple Traversal of UDP through NAT
@@ -196,6 +199,7 @@ namespace WebRTCRemote
         // 定義一個 STUN 伺服器地址，以便在需要時使用這個伺服器來幫助應用程式進行 NAT 穿越。
         private const string STUN_URL = "stun:stun.sipsorcery.com";
         static private RTCPeerConnection PeerConnection = null;
+        // 接收和處理音頻數據的接口，用於處理音源訊號。
         static private IAudioSink audioSink = null;
         static private IVideoSource videoSource = null;
         static private IAudioSource audioSource = null;
@@ -215,7 +219,7 @@ namespace WebRTCRemote
                     // Do we use same file for Audio ?
                     if ((AudioSourceType == AUDIO_SOURCE.FILE_OR_STREAM) && (AudioSourceFile == VideoSourceFile))
                     {
-                        FFmpegFileSource fileSource = new FFmpegFileSource(VideoSourceFile, RepeatVideoFile, new AudioEncoder(), 960, true);
+                        FFmpegFileSource fileSource = new FFmpegFileSource(VideoSourceFile, RepeatVideoFile, new AudioEncoder(), 1920, true);
                         fileSource.OnAudioSourceError += (msg) => PeerConnection.Close(msg);
                         fileSource.OnVideoSourceError += (msg) => PeerConnection.Close(msg);
 
@@ -224,7 +228,7 @@ namespace WebRTCRemote
                     }
                     else
                     {
-                        FFmpegFileSource fileSource = new FFmpegFileSource(VideoSourceFile, RepeatVideoFile, new AudioEncoder(), 960, true);
+                        FFmpegFileSource fileSource = new FFmpegFileSource(VideoSourceFile, RepeatVideoFile, new AudioEncoder(), 1920, true);
                         fileSource.OnVideoSourceError += (msg) => PeerConnection.Close(msg);
 
                         videoSource = fileSource as IVideoSource;

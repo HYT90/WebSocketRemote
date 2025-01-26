@@ -98,9 +98,9 @@ namespace WebRTCRemote
 
         private static void MouseClick(Data data, MouseEvent mouseEvent)
         {
-            int screenX = data.X.Value;
-            int screenY = data.Y.Value;
-            SetCursorPos(screenX, screenY);
+            float screenX = (float)data.X.Value / Constants.DisplayRatio;
+            float screenY = (float)data.Y.Value / Constants.DisplayRatio;
+            SetCursorPos((int)screenX, (int)screenY);
             mouse_event((uint)mouseEvent, (uint)screenX, (uint)screenY, 0, 0);
         }
 

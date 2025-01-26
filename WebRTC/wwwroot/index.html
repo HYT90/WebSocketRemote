@@ -16,7 +16,7 @@
 
     const frameBuffer = [];
     setInterval(function () {
-      if (frameBuffer.length <= 10) return;
+      if (frameBuffer.length <= 0) return;
       screenCapture.src = frameBuffer.shift();
     }, 10);
     // 創建一個新的WebSocket物件
@@ -49,7 +49,7 @@
     });
 
     screenCapture.addEventListener("mousemove", function (event) {
-      MouseEvent(event, 5);
+      //MouseEvent(event, 5);
     });
 
     function MouseEvent(event, type) {

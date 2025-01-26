@@ -57,8 +57,8 @@
     controls
     autoplay="autoplay"
     id="videoCtl"
-    width="1024"
-    height="768"
+    width="640"
+    height="480"
   ></video>
 
   <div>
@@ -74,4 +74,14 @@
 
 <script>
   document.querySelector("#websockurl").value = WEBSOCKET_URL;
+
+  document.getElementById("videoCtl").addEventListener("click", function (e) {
+    e.preventDefault();
+  });
+
+  document
+    .getElementById("videoCtl")
+    .addEventListener("contextmenu", function (e) {
+      e.preventDefault();
+    });
 </script>
