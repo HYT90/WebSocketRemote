@@ -10,7 +10,7 @@ namespace WebRTCRemote
         static int height;
         static int width;
 
-        private static float MousePosRatio = Constants.DisplayRatio;
+        private static float MouseClickPosRatio = Constants.DisplayRatio * Constants.DisplayZoomOut;
 
         // 使用 P/Invoke 從 user32.dll 中引入 GetCursorInfo 函數，用於獲取滑鼠游標資訊。
         [DllImport("user32.dll")] 
@@ -52,7 +52,7 @@ namespace WebRTCRemote
                 // 繪製滑鼠游標
                 Cursor cursor = new Cursor(cursorInfo.hCursor);
                 // 顯示並修正滑鼠位置
-                cursor.Draw(g, new Rectangle((int)((float)cursorInfo.ptScreenPos.X * MousePosRatio), (int)((float)cursorInfo.ptScreenPos.Y * MousePosRatio), cursor.Size.Width, cursor.Size.Height));
+                cursor.Draw(g, new Rectangle((int)((float)cursorInfo.ptScreenPos.X * Constants.DisplayRatio), (int)((float)cursorInfo.ptScreenPos.Y * Constants.DisplayRatio), cursor.Size.Width, cursor.Size.Height));
             }
         }
 
@@ -95,6 +95,18 @@ namespace WebRTCRemote
             return newImage;
         }
 
+        public static Bitmap ResizeScreenImage(Image image)
+        {
+            float w = (float)width / MouseClickPosRatio;
+            float h = (float)height / MouseClickPosRatio;
+
+            Bitmap newImage = new Bitmap((int)w, (int)h);
+            using Graphics g = Graphics.FromImage(newImage);
+            g.DrawImage(image, 0, 0, w, h);
+
+            return newImage;
+        }
+
         /// <summary>
         /// 將目前顯示器畫面擷取並轉換成 byte[] 回傳
         /// </summary>
@@ -105,7 +117,7 @@ namespace WebRTCRemote
 
             using(MemoryStream ms = new MemoryStream())
             {
-                RecordImage().Save(ms, ImageFormat.Jpeg);
+                ResizeScreenImage(RecordImage()).Save(ms, ImageFormat.Jpeg);
                 imageBytes = ms.ToArray();
                 //Bitmap bmp = new(ms); 轉回bmp類型
             }
@@ -140,7 +152,5 @@ namespace WebRTCRemote
 
             return bmpBytes;
         }
-
-        //擷取音源輸出
     }
 }

@@ -50,8 +50,8 @@ namespace WebRTCRemote
                     //await Task.WhenAll(echo, send);
 
                     // no blocking
-                    Task.Run(Send);
-                    await Echo();
+                    Task.Run(Echo);
+                    await Send();
                     //Task.Run(Echo);
                 }
                 else
@@ -83,7 +83,9 @@ namespace WebRTCRemote
 
                         if (result.Count>0)
                         {
+                            // RemoteHandle.DataContentReceived
                             handle(buffer, result.Count);
+                            //
                         }
                         //byte[] responseBuffer = Encoding.UTF8.GetBytes("Echo from server: " + message);
                         //await webSocket.SendAsync(new ArraySegment<byte>(responseBuffer), WebSocketMessageType.Text, true, CancellationToken.None);

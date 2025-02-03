@@ -23,7 +23,7 @@ AllocConsole();
 // 如果 AllocConsole() 函式呼叫失敗，錯誤碼將儲存到 LastError 中，並可以通過 Marshal.GetLastWin32Error() 來獲取。
 int errorCode = Marshal.GetLastWin32Error();
 
-//Console.WriteLine("畫面容量大小： " + ScreenStream.RecordImageBytes().Length + " Bytes.");
+Console.WriteLine("畫面容量大小： " + ScreenStream.RecordImageBytes().Length + " Bytes.");
 Server.InitalizeServer(IPAddress.Parse(Constants.IP), Constants.Port);
 await Server.RunAsync();
 
