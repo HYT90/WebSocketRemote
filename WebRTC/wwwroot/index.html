@@ -14,11 +14,11 @@
     const socketEvent = document.getElementById("socketEvent");
     const screenCapture = document.getElementById("ScreenCapture");
 
-    const frameBuffer = [];
-    setInterval(function () {
-      if (frameBuffer.length <= 0) return;
-      screenCapture.src = frameBuffer.shift();
-    }, 10);
+    // const frameBuffer = [];
+    // setInterval(function () {
+    //   if (frameBuffer.length <= 0) return;
+    //   screenCapture.src = frameBuffer.shift();
+    // }, 10);
     // 創建一個新的WebSocket物件
     var socket = InitialWS();
 
@@ -75,7 +75,8 @@
 
     // 初始化ws
     function InitialWS() {
-      const socket = new WebSocket("ws://192.168.43.96:8080");
+      const socket = new WebSocket("ws://192.168.0.17:8080");
+      socket.binaryType = "arraybuffer";
 
       // 連接開啟
       socket.addEventListener("open", function (event) {
@@ -91,9 +92,14 @@
       // 聆聽訊息
       socket.addEventListener("message", function (event) {
         console.log("來自伺服器的訊息");
-        const base64_img = `data:image/png;base64,${event.data}`;
-        frameBuffer.push(base64_img);
-        console.log(frameBuffer.length);
+        //const base64_img = `data:image/jpg;base64,${event.data}`;
+        //frameBuffer.push(base64_img);
+        //console.log(frameBuffer.length);
+
+        const arrayBuffer = event.data;
+        // 將 arrayBuffer 轉換為 Blob
+        const blob = new Blob([arrayBuffer], { type: "image/jpeg" });
+        displayImage(blob);
       });
 
       socket.addEventListener("error", function (event) {
@@ -101,6 +107,16 @@
         socketEvent.innerText = "連線出現錯誤";
       });
       return socket;
+    }
+
+    function displayImage(blob) {
+      // 創建 Blob URL
+      const url = URL.createObjectURL(blob);
+      // 將 Blob URL 設定到 img 標籤的 src 屬性
+      screenCapture.src = url;
+
+      // 設置定時器，釋放 Blob URL 資源
+      setTimeout(() => URL.revokeObjectURL(url), 50); // 50毫秒後釋放資源
     }
   </script>
 </html>

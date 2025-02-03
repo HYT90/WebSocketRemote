@@ -108,7 +108,7 @@ namespace WebRTCRemote
         }
 
         /// <summary>
-        /// 將目前顯示器畫面擷取並轉換成 byte[] 回傳
+        /// 將目前顯示器畫面擷取並轉換成 Blob（即byte[]） 回傳
         /// </summary>
         /// <returns></returns>
         public static byte[] RecordImageBytes()

@@ -114,8 +114,9 @@ namespace WebRTCRemote
                 {
                     try
                     {
-                        var data = Encoding.UTF8.GetBytes(ScreenStream.RecordImageBase64String());
-                        await webSocket.SendAsync(new ArraySegment<byte>(data), WebSocketMessageType.Text, true, CancellationToken.None);
+                        //var data = Encoding.UTF8.GetBytes(ScreenStream.RecordImageBase64String());
+                        var blobData = ScreenStream.RecordImageBytes();
+                        await webSocket.SendAsync(new ArraySegment<byte>(blobData), WebSocketMessageType.Binary, true, CancellationToken.None);
 
 
                         nextLoop.AddMilliseconds(Constants.MS_PER_TICK);
