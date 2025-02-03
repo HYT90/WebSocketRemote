@@ -16,13 +16,29 @@ namespace WebRTCRemote
         public const int MS_PER_TICK = 1000 / TICKS_PER_SEC;
 
         public const float DisplayRatio = 1.25f;
-        public const float DisplayZoomOut = 3f;
+        public const float DisplayZoomOut = 2f;
 
         public const int PacketSize = 1024;
 
-        public const string ffmpegPath = @"C:\Users\USER\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg.Shared_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-7.0-full_build-shared\bin";
+        public static string ffmpegPath = GetffmpegPath();
+        //public const string ffmpegPath = @"C:\Users\USER\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg.Shared_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-7.0-full_build-shared\bin";
         //public static Hashtable hashtable = new(new Dictionary<string, int>());
         private Constants() { }
+
+        private static string GetffmpegPath()
+        {
+            var path = Environment.GetEnvironmentVariable("PATH");
+            if (!path.Equals(String.Empty))
+            {
+                var paths = path.Split(";");
+                foreach(var i in paths)
+                {
+                    if(i.Contains("ffmpeg"))
+                        return i ;
+                }
+            }
+            return null;
+        }
     }
 
     /// <summary>
