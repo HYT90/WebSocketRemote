@@ -17,16 +17,22 @@ namespace WebRTCRemote
         static extern bool SetCursorPos(int X, int Y);
 
 
+        [DllImport("user32.dll")]
+        public static extern short GetAsyncKeyState(int vKey);
+
         // keyboard event
         // 定義結構體以描述輸入事件
+        // 定義 INPUT 結構
         [StructLayout(LayoutKind.Sequential)]
-        struct INPUT
+        public struct INPUT
         {
             public uint type;
             public InputUnion u;
+            public static int Size => Marshal.SizeOf(typeof(INPUT));
         }
+
         [StructLayout(LayoutKind.Explicit)]
-        struct InputUnion
+        public struct InputUnion
         {
             [FieldOffset(0)]
             public MOUSEINPUT mi;
@@ -35,8 +41,8 @@ namespace WebRTCRemote
             [FieldOffset(0)]
             public HARDWAREINPUT hi;
         }
-        [StructLayout(LayoutKind.Sequential)]
-        struct MOUSEINPUT
+
+        public struct MOUSEINPUT
         {
             public int dx;
             public int dy;
@@ -46,8 +52,7 @@ namespace WebRTCRemote
             public IntPtr dwExtraInfo;
         }
 
-        [StructLayout(LayoutKind.Sequential)]
-        struct KEYBDINPUT
+        public struct KEYBDINPUT
         {
             public ushort wVk;
             public ushort wScan;
@@ -56,8 +61,7 @@ namespace WebRTCRemote
             public IntPtr dwExtraInfo;
         }
 
-        [StructLayout(LayoutKind.Sequential)]
-        struct HARDWAREINPUT
+        public struct HARDWAREINPUT
         {
             public uint uMsg;
             public ushort wParamL;
@@ -67,8 +71,10 @@ namespace WebRTCRemote
         const int INPUT_KEYBOARD = 1;
         const uint KEYEVENTF_KEYUP = 0x0002;
 
+
         [DllImport("user32.dll", SetLastError = true)]
         static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
+
 
         public static void Operation(Data data)
         {
@@ -98,15 +104,60 @@ namespace WebRTCRemote
 
         private static void MouseClick(Data data, MouseEvent mouseEvent)
         {
-            float screenX = (float)data.X.Value / Constants.DisplayRatio;
-            float screenY = (float)data.Y.Value / Constants.DisplayRatio;
+            float screenX = (float)data.X.Value * Constants.DisplayZoomOut;
+            float screenY = (float)data.Y.Value * Constants.DisplayZoomOut;
             SetCursorPos((int)screenX, (int)screenY);
             mouse_event((uint)mouseEvent, (uint)screenX, (uint)screenY, 0, 0);
         }
 
         private static void Keyboard(Data data)
         {
-            Console.WriteLine((ushort)data.Key.Value);
+            ushort key = (ushort)data.Key.Value;
+            Console.WriteLine(key);
+            GetAsyncKeyState(key);
+            KeyboardInput(key);
+        }
+
+        private static void KeyboardInput(ushort k)
+        {
+            INPUT[] inputs = new INPUT[2];
+
+            // 模擬按下
+            inputs[0] = new INPUT
+            {
+                type = 1, // 輸入類型: 鍵盤
+                u = new InputUnion
+                {
+                    ki = new KEYBDINPUT
+                    {
+                        wVk = k,
+                        wScan = 0,
+                        dwFlags = 0,
+                        time = 0,
+                        dwExtraInfo = IntPtr.Zero
+                    }
+                }
+            };
+
+            // 模擬釋放
+            inputs[1] = new INPUT
+            {
+                type = 1, // 輸入類型: 鍵盤
+                u = new InputUnion
+                {
+                    ki = new KEYBDINPUT
+                    {
+                        wVk = k,
+                        wScan = 0,
+                        dwFlags = 2, // KEYEVENTF_KEYUP 標誌
+                        time = 0,
+                        dwExtraInfo = IntPtr.Zero
+                    }
+                }
+            };
+
+            // 傳送模擬按鍵輸入
+            SendInput((uint)inputs.Length, inputs, INPUT.Size);
         }
     }
 }

@@ -16,6 +16,7 @@ namespace WebRTCRemote
         public const int MS_PER_TICK = 1000 / TICKS_PER_SEC;
 
         public const float DisplayRatio = 1.25f;
+        public const float DisplayZoomOut = 3f;
 
         public const int PacketSize = 1024;
 
