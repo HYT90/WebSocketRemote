@@ -11,6 +11,7 @@ namespace WebRTCRemote
     {
         public const string IP = "192.168.0.17";
         public const int Port = 8080;
+        public const int WebRTCPort = 8081;
 
         public const int TICKS_PER_SEC = 50;
         public const int MS_PER_TICK = 1000 / TICKS_PER_SEC;
@@ -21,8 +22,6 @@ namespace WebRTCRemote
         public const int PacketSize = 1024;
 
         public static string ffmpegPath = GetffmpegPath();
-        //public const string ffmpegPath = @"C:\Users\USER\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg.Shared_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-7.0-full_build-shared\bin";
-        //public static Hashtable hashtable = new(new Dictionary<string, int>());
         private Constants() { }
 
         private static string GetffmpegPath()

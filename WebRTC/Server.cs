@@ -142,6 +142,12 @@ namespace WebRTCRemote
 
     public class WebRTCHost
     {
+        private static string? endpoint;
+        private static HttpListener? httpListener;
+        private static WebSocket? webSocket;
+        private static WebSocketServer webSocketServer;
+
+
         enum VIDEO_SOURCE
         {
             NONE,
@@ -158,8 +164,11 @@ namespace WebRTCRemote
         }
 
 
-        public static void Run()
+        public static void Run(IPAddress ip, int port, int webRTCPort)
         {
+            IPEndPoint ep = new(ip, port);
+            endpoint = ep.ToString();
+            Task.Run(WebSocketRun);
             Console.WriteLine("WebRTC Demo");
 
             // Initialise FFmpeg librairies
@@ -169,7 +178,7 @@ namespace WebRTCRemote
 
             // Start web socket.
             Console.WriteLine("Starting web socket server...");
-            var webSocketServer = new WebSocketServer(IPAddress.Parse(Constants.IP), Constants.Port);
+            webSocketServer = new WebSocketServer(ip, webRTCPort);
             webSocketServer.AddWebSocketService<WebRTCWebSocketPeer>("/", (peer) => peer.CreatePeerConnection = CreatePeerConnection);
             webSocketServer.Start();
             Console.WriteLine($"Waiting for web socket connections on {webSocketServer.Address}:{webSocketServer.Port}...");
@@ -184,6 +193,68 @@ namespace WebRTCRemote
 
             // Wait for a signal saying the call failed, was cancelled with ctrl-c or completed.
             exitMe.WaitOne();
+        }
+
+        private static async Task WebSocketRun()
+        {
+            httpListener = new HttpListener();
+            httpListener.Prefixes.Add($"http://{endpoint}/");
+            httpListener.Start();
+            Console.WriteLine($"WebSocket server started at ws://{endpoint}/");
+            while (true)
+            {
+                Console.WriteLine("Listening...");
+                HttpListenerContext context = await httpListener.GetContextAsync();
+                if (context.Request.IsWebSocketRequest)
+                {
+                    Console.WriteLine($"{context.Request.RemoteEndPoint} has connected.");
+                    HttpListenerWebSocketContext wsContext = await context.AcceptWebSocketAsync(null);
+                    webSocket = wsContext.WebSocket;
+
+                    await Echo();
+                }
+                else
+                {
+                    context.Response.StatusCode = 400;
+                    context.Response.Close();
+                }
+            }
+        }
+        private static async Task Echo()
+        {
+            byte[] buffer = new byte[Constants.PacketSize];
+            Console.WriteLine("Waiting for sending form client...");
+            try
+            {
+                while (webSocket.State == WebSocketState.Open)
+                {
+                    try
+                    {
+                        WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                        if (result == null) break;
+
+                        if (result.MessageType == WebSocketMessageType.Close)
+                        {
+                            await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Client disconnected", CancellationToken.None);
+                        }
+
+                        if (result.Count > 0)
+                        {
+                            RemoteHandle.DataContentReceived(buffer, result.Count);
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Here is JSON part. {ex.Message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Here is from Echo(). {ex.Message}");
+            }
+
         }
         static private VIDEO_SOURCE VideoSourceType = VIDEO_SOURCE.SCREEN;
         static private AUDIO_SOURCE AudioSourceType = AUDIO_SOURCE.MICROPHONE;
@@ -257,7 +328,8 @@ namespace WebRTCRemote
 
                     if (primaryMonitor != null)
                     {
-                        videoSource = new FFmpegScreenSource(primaryMonitor.Path, primaryMonitor.Rect, 10);
+                        //videoSource = new FFmpegScreenSource(primaryMonitor.Path, primaryMonitor.Rect, 10);
+                        videoSource = new FFmpegScreenSource(primaryMonitor.Path, new Rectangle(0,0,1920,1080), 10);
                         videoSource.OnVideoSourceError += (msg) => PeerConnection.Close(msg);
                     }
                     else

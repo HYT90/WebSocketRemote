@@ -33,9 +33,10 @@ while (true)
         Console.WriteLine("請輸入Port。");
         int port = Int32.Parse(Console.ReadLine());
         IPAddress.TryParse(ip, out IPAddress address);
-        Server.InitalizeServer(address, port);
-        //Server.InitalizeServer(IPAddress.Parse(Constants.IP), Constants.Port);
-        await Server.RunAsync();
+//        Server.InitalizeServer(address, port);
+//        //Server.InitalizeServer(IPAddress.Parse(Constants.IP), Constants.Port);
+//        await Server.RunAsync();
+        WebRTCHost.Run(address, port, Constants.WebRTCPort);
     }
     catch (Exception ex)
     {
@@ -44,7 +45,6 @@ while (true)
 }
 
 
-//WebRTCHost.Run();
 
 //Application.EnableVisualStyles(); 
 //Application.SetCompatibleTextRenderingDefault(false); 
