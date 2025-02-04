@@ -5,7 +5,7 @@
 
   <script type="text/javascript">
     const STUN_URL = "stun:stun.sipsorcery.com";
-    const WEBSOCKET_URL = "ws://192.168.0.17:8080/";
+    let WEBSOCKET_URL = "ws://192.168.0.17:8081/";
 
     var pc, ws;
 
@@ -53,13 +53,9 @@
   </script>
 </head>
 <body>
-  <video
-    controls
-    autoplay="autoplay"
-    id="videoCtl"
-    width="640"
-    height="480"
-  ></video>
+  <div id="ScreenCapture">
+    <video autoplay="autoplay" id="videoCtl" width="960" height="540"></video>
+  </div>
 
   <div>
     <input type="text" id="websockurl" size="40" />
@@ -70,18 +66,103 @@
       Close
     </button>
   </div>
+  <hr />
+  <div>
+    <label>請輸入建立WebSocket連線的 IP:Port</label>
+    <input type="text" id="url" />
+    <input type="submit" onclick="connect()" value="連線" />
+    <div id="socketEvent"></div>
+  </div>
 </body>
 
 <script>
   document.querySelector("#websockurl").value = WEBSOCKET_URL;
 
-  document.getElementById("videoCtl").addEventListener("click", function (e) {
-    e.preventDefault();
-  });
+  let socket;
+  const socketEvent = document.getElementById("socketEvent");
+  const url = document.getElementById("url");
+  const vctl = document.getElementById("videoCtl");
+  let wsURL = "ws://192.168.0.17:8080/";
 
-  document
-    .getElementById("videoCtl")
-    .addEventListener("contextmenu", function (e) {
-      e.preventDefault();
+  url.value = wsURL;
+  function connect() {
+    if (socket != null && (socket.readyState == 0 || socket.readyState == 1))
+      return;
+    socketEvent.innerText = "連接中...";
+    socket = InitialWS();
+  }
+
+  function InitialWS() {
+    console.log(`準備連線至${url.value}`);
+    const socket = new WebSocket(`${url.value}`);
+
+    // 連接開啟
+    socket.addEventListener("open", function (event) {
+      console.log("連接到WebSocket伺服器");
+      socketEvent.innerText = "連接到WebSocket伺服器";
     });
+
+    socket.addEventListener("close", function (event) {
+      console.log("連接已關閉");
+      socketEvent.innerText = "連接已關閉";
+    });
+
+    // 聆聽訊息
+    socket.addEventListener("message", function (event) {
+      console.log("來自伺服器的訊息");
+    });
+
+    socket.addEventListener("error", function (event) {
+      console.log("連線出現錯誤", event);
+      socketEvent.innerText = "連線出現錯誤";
+    });
+
+    //讀取輸入
+    vctl.addEventListener("click", function (event) {
+      MouseEvent(event, 1);
+    });
+
+    vctl.addEventListener("dblclick", function (event) {
+      MouseEvent(event, 3);
+    });
+
+    vctl.addEventListener("contextmenu", function (event) {
+      MouseEvent(event, 2);
+    });
+
+    document.addEventListener("keydown", function (event) {
+      MouseEvent(event, 4);
+    });
+
+    vctl.addEventListener("mousemove", function (event) {
+      //MouseEvent(event, 5);
+    });
+
+    function MouseEvent(event, type) {
+      event.preventDefault();
+      let x = event.x - 8;
+      let y = event.y - 8;
+      if (x > vctl.getAttribute("width")) x = vctl.getAttribute("width");
+      if (y > vctl.getAttribute("height")) y = vctl.getAttribute("height");
+      const data = {
+        Type: type,
+        X: x,
+        Y: y,
+        Key: event.keyCode,
+      };
+      var jsonData = JSON.stringify(data);
+      sendMessage(jsonData);
+    }
+
+    // 發送訊息到伺服器
+    function sendMessage(message) {
+      socket.send(message);
+    }
+
+    // 關閉連接
+    function closeConnection() {
+      socket.close();
+    }
+    return socket;
+  }
 </script>

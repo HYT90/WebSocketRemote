@@ -8,12 +8,12 @@
   <body>
     <img id="ScreenCapture" />
     <hr />
-    <span>
-      <label>請輸入建立連線的 IP:Port</label>
+    <div>
+      <label>請輸入建立WebSocket連線的 IP:Port</label>
       <input type="text" id="url" />
       <input type="submit" onclick="connect()" value="連線" />
-    </span>
-    <span id="socketEvent"></span>
+    </div>
+    <div id="socketEvent"></div>
   </body>
   <script type="text/javascript">
     const socketEvent = document.getElementById("socketEvent");

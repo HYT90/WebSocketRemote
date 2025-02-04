@@ -9,6 +9,7 @@ namespace WebRTCRemote
 {
     internal class InputDataTreatment
     {
+        private static float offset = Constants.DisplayZoomOut / Constants.DisplayRatio;
         // mouse event
         [DllImport("user32.dll", SetLastError = true)]
         static extern void mouse_event(uint dwFlags, uint dx, uint dy, uint dwData, uint dwExtraInfo);
@@ -104,8 +105,8 @@ namespace WebRTCRemote
 
         private static void MouseClick(Data data, MouseEvent mouseEvent)
         {
-            float screenX = (float)data.X.Value * Constants.DisplayZoomOut;
-            float screenY = (float)data.Y.Value * Constants.DisplayZoomOut;
+            float screenX = (float)data.X.Value * offset;
+            float screenY = (float)data.Y.Value * offset;
             SetCursorPos((int)screenX, (int)screenY);
             mouse_event((uint)mouseEvent, (uint)screenX, (uint)screenY, 0, 0);
         }
