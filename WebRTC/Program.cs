@@ -28,19 +28,21 @@ while (true)
 {
     try
     {
-        Console.WriteLine("請輸入IP。");
+        Console.Write("請輸入本機IP：");
         string ip = Console.ReadLine();
-        Console.WriteLine("請輸入Port。");
+        Console.Write("請輸入開放的Port：");
         int port = Int32.Parse(Console.ReadLine());
         IPAddress.TryParse(ip, out IPAddress address);
-//        Server.InitalizeServer(address, port);
+        //Server.InitalizeServer(address, port);
 //        //Server.InitalizeServer(IPAddress.Parse(Constants.IP), Constants.Port);
-//        await Server.RunAsync();
+        //await Server.RunAsync();
         WebRTCHost.Run(address, port, Constants.WebRTCPort);
     }
     catch (Exception ex)
     {
-        Console.WriteLine(ex.Message);
+        Console.WriteLine("-------------------------");
+        Console.WriteLine($"Error: {ex.Message}");
+        Console.WriteLine("-------------------------");
     }
 }
 

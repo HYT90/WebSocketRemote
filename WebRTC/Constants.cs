@@ -22,6 +22,8 @@ namespace WebRTCRemote
         public const int PacketSize = 1024;
 
         public static string ffmpegPath = GetffmpegPath();
+        public const string CertPath = "../../../certificate.pfx";
+        public static string CertPassword = Environment.GetEnvironmentVariable("certpw", EnvironmentVariableTarget.User)!;
         private Constants() { }
 
         private static string GetffmpegPath()

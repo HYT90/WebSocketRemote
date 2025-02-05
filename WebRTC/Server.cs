@@ -9,6 +9,7 @@ using SIPSorceryMedia.Encoders;
 using WebSocketSharp.Server;
 using SIPSorceryMedia.Abstractions;
 using SIPSorceryMedia.FFmpeg;
+using System.Security.Cryptography.X509Certificates;
 
 namespace WebRTCRemote
 {
@@ -27,13 +28,13 @@ namespace WebRTCRemote
             IPEndPoint ep = new(ip, port);
             endpoint = ep.ToString();
             httpListener = new HttpListener();
-            httpListener.Prefixes.Add($"http://{endpoint}/");
+            httpListener.Prefixes.Add($"https://{endpoint}/");
         }
 
         public static async Task RunAsync()
         {
             httpListener.Start();
-            Console.WriteLine($"WebSocket server started at ws://{endpoint}/");
+            Console.WriteLine($"WebSocket server started at wss://{endpoint}/");
             while (true)
             {
                 Console.WriteLine("Listening...");
@@ -56,6 +57,7 @@ namespace WebRTCRemote
                 }
                 else
                 {
+                    Console.WriteLine(context.Response.StatusCode);
                     context.Response.StatusCode = 400;
                     context.Response.Close();
                 }
@@ -171,19 +173,37 @@ namespace WebRTCRemote
 
             Task.Run(WebSocketRun);
 
+            
+
             Console.WriteLine("WebRTC Demo");
 
             // Initialise FFmpeg librairies
             FFmpegInit.Initialise(FfmpegLogLevelEnum.AV_LOG_PANIC, Constants.ffmpegPath);
 
             Console.WriteLine("WebRTC Get Started");
+            try
+            {
+                // Start web socket.
+                Console.WriteLine("Starting web socket server...");
+                webSocketServer = new WebSocketServer(ip, webRTCPort, true);
+                webSocketServer.SslConfiguration.ServerCertificate = new X509Certificate2(Constants.CertPath, Constants.CertPassword);
+                webSocketServer.SslConfiguration.EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+                Console.WriteLine(webSocketServer.SslConfiguration);
+                webSocketServer.AddWebSocketService<WebRTCWebSocketPeer>("/", (peer) => peer.CreatePeerConnection = CreatePeerConnection);
 
-            // Start web socket.
-            Console.WriteLine("Starting web socket server...");
-            webSocketServer = new WebSocketServer(ip, webRTCPort);
-            webSocketServer.AddWebSocketService<WebRTCWebSocketPeer>("/", (peer) => peer.CreatePeerConnection = CreatePeerConnection);
-            webSocketServer.Start();
-            Console.WriteLine($"Waiting for web socket connections on {webSocketServer.Address}:{webSocketServer.Port}...");
+                webSocketServer.Start();
+                Console.WriteLine($"Waiting for web socket connections on {webSocketServer.Address}:{webSocketServer.Port}...");
+            }
+            catch(Exception ex) 
+            {
+                if(httpListener != null || httpListener.IsListening)
+                {
+                    httpListener.Stop();
+                    Console.WriteLine("--------------Http listener stop---------------");
+                }
+                throw;
+            }
+            
 
 
             // Ctrl-c will gracefully exit the call at any point.
@@ -201,13 +221,14 @@ namespace WebRTCRemote
         private static async Task WebSocketRun()
         {
             httpListener = new HttpListener();
-            httpListener.Prefixes.Add($"http://{endpoint}/");
+            httpListener.Prefixes.Add($"https://{endpoint}/");
             httpListener.Start();
-            Console.WriteLine($"WebSocket server started at ws://{endpoint}/");
+            Console.WriteLine($"WebSocket server started at wss://{endpoint}/");
             while (true)
             {
                 Console.WriteLine("Listening...");
                 HttpListenerContext context = await httpListener.GetContextAsync();
+                Console.WriteLine(context.Request.Url);
                 if (context.Request.IsWebSocketRequest)
                 {
                     Console.WriteLine($"{context.Request.RemoteEndPoint} has connected.");
