@@ -184,11 +184,13 @@ namespace WebRTCRemote
             try
             {
                 // Start web socket.
-                Console.WriteLine("Starting web socket server...");
-                webSocketServer = new WebSocketServer(ip, webRTCPort, true);
-                webSocketServer.SslConfiguration.ServerCertificate = new X509Certificate2(Constants.CertPath, Constants.CertPassword);
-                webSocketServer.SslConfiguration.EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12;
-                Console.WriteLine(webSocketServer.SslConfiguration);
+                Console.WriteLine("Starting webRTC server...");
+                webSocketServer = new WebSocketServer(ip, webRTCPort);
+
+                //webSocketServer = new WebSocketServer(ip, webRTCPort, true);
+                //webSocketServer.SslConfiguration.ServerCertificate = new X509Certificate2(Constants.CertPath, Constants.CertPassword);
+                //webSocketServer.SslConfiguration.EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+
                 webSocketServer.AddWebSocketService<WebRTCWebSocketPeer>("/", (peer) => peer.CreatePeerConnection = CreatePeerConnection);
 
                 webSocketServer.Start();
@@ -221,14 +223,13 @@ namespace WebRTCRemote
         private static async Task WebSocketRun()
         {
             httpListener = new HttpListener();
-            httpListener.Prefixes.Add($"https://{endpoint}/");
+            httpListener.Prefixes.Add($"http://{endpoint}/");
             httpListener.Start();
-            Console.WriteLine($"WebSocket server started at wss://{endpoint}/");
+            Console.WriteLine($"Web socket server started at ws://{endpoint}/");
             while (true)
             {
                 Console.WriteLine("Listening...");
                 HttpListenerContext context = await httpListener.GetContextAsync();
-                Console.WriteLine(context.Request.Url);
                 if (context.Request.IsWebSocketRequest)
                 {
                     Console.WriteLine($"{context.Request.RemoteEndPoint} has connected.");

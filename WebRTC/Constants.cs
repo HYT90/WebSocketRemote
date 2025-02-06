@@ -9,7 +9,7 @@ namespace WebRTCRemote
 {
     internal class Constants
     {
-        public const string IP = "192.168.0.17";
+        public static string IP = "192.168.0.17";
         public const int Port = 8080;
         public const int WebRTCPort = 8081;
 

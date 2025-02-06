@@ -2,6 +2,11 @@
 using System.Net;
 using System.Runtime.InteropServices;
 using WebRTCRemote;
+using Microsoft.AspNetCore.Owin;
+using System.Drawing.Text;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 
 // 設置專案檔案 (.csproj) 設置類型為 WinExe
 // <OutputType>WinExe</OutputType>
@@ -15,7 +20,6 @@ using WebRTCRemote;
 [return: MarshalAs(UnmanagedType.Bool)]
 static extern bool AllocConsole();
 
-
 //Console.WriteLine("Hello, World!");
 //args 可帶入 env 變數
 
@@ -23,20 +27,51 @@ AllocConsole();
 // 如果 AllocConsole() 函式呼叫失敗，錯誤碼將儲存到 LastError 中，並可以通過 Marshal.GetLastWin32Error() 來獲取。
 int errorCode = Marshal.GetLastWin32Error();
 
+
+var host = new WebHostBuilder()
+    .UseKestrel()
+    .UseUrls($"http://{Constants.IP}:80")
+    .Configure((app) =>
+    {
+        app.UseDefaultFiles();
+        app.UseStaticFiles();
+        app.Run(async (context) =>
+        {
+            var request = context.Request;
+            var response = context.Response;
+            string path = request.Path.Value;
+            if (path == "/help")
+            {
+                response.StatusCode = 200;
+                await response.WriteAsync($"WebRTCRemote path: {Constants.IP}/webrtcremote.html");
+            }
+            else
+            {
+                response.StatusCode = 400;
+            }
+        });
+    })
+    .Build();
+
+host.RunAsync();
+
+
+
+
 //Console.WriteLine("畫面容量大小： " + ScreenStream.RecordImageBytes().Length + " Bytes.");
 while (true)
 {
     try
     {
-        Console.Write("請輸入本機IP：");
+        Console.Write($"請輸入本機IP(或enter直接跳過，使用預設IP {Constants.IP} )：");
         string ip = Console.ReadLine();
-        Console.Write("請輸入開放的Port：");
-        int port = Int32.Parse(Console.ReadLine());
-        IPAddress.TryParse(ip, out IPAddress address);
+        Constants.IP = ip.Equals(string.Empty)? Constants.IP:ip;
+        Console.WriteLine($"Web socket server will run at http://{Constants.IP}:{Constants.Port}/");
         //Server.InitalizeServer(address, port);
 //        //Server.InitalizeServer(IPAddress.Parse(Constants.IP), Constants.Port);
         //await Server.RunAsync();
-        WebRTCHost.Run(address, port, Constants.WebRTCPort);
+        //WebRTCHost.Run(address, port, Constants.WebRTCPort);
+        WebRTCHost.Run(IPAddress.Parse(Constants.IP), Constants.Port, Constants.WebRTCPort);
     }
     catch (Exception ex)
     {
@@ -51,4 +86,5 @@ while (true)
 //Application.EnableVisualStyles(); 
 //Application.SetCompatibleTextRenderingDefault(false); 
 //Application.Run(new 預覽視窗(Constants.MS_PER_TICK));
+
 
