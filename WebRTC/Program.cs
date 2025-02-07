@@ -43,7 +43,7 @@ var host = new WebHostBuilder()
             if (path == "/help")
             {
                 response.StatusCode = 200;
-                await response.WriteAsync($"WebRTCRemote path: {Constants.IP}/webrtcremote.html");
+                await response.WriteAsync("This is a WebRTCRemoteService.");
             }
             else
             {
@@ -71,7 +71,7 @@ while (true)
 //        //Server.InitalizeServer(IPAddress.Parse(Constants.IP), Constants.Port);
         //await Server.RunAsync();
         //WebRTCHost.Run(address, port, Constants.WebRTCPort);
-        WebRTCHost.Run(IPAddress.Parse(Constants.IP), Constants.Port, Constants.WebRTCPort);
+        WebRTCHost.Run(IPAddress.Parse(Constants.IP), Constants.WebRTCPort);
     }
     catch (Exception ex)
     {

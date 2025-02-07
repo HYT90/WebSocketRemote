@@ -1,129 +1,146 @@
 ﻿<!DOCTYPE html>
-<html lang="zh-TW">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
-  <body>
-    <img id="ScreenCapture" />
-    <hr />
-    <div>
-      <label>請輸入建立WebSocket連線的 IP:Port</label>
-      <input type="text" id="url" />
-      <input type="submit" onclick="connect()" value="連線" />
-    </div>
-    <div id="socketEvent"></div>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <script type="text/javascript">
-    const socketEvent = document.getElementById("socketEvent");
-    const screenCapture = document.getElementById("ScreenCapture");
+    const STUN_URL = "stun:stun.sipsorcery.com";
+    var WEBSOCKET_URL = "ws://192.168.0.17:8081/";
 
-    // const frameBuffer = [];
-    // setInterval(function () {
-    //   if (frameBuffer.length <= 0) return;
-    //   screenCapture.src = frameBuffer.shift();
-    // }, 10);
-    // 創建一個新的WebSocket物件
-    let socket;
-    const url = document.getElementById("url");
+    var pc, ws;
 
-    function connect() {
-      if (socket != null && (socket.readyState == 0 || socket.readyState == 1))
-        return;
+    async function start() {
+      if (ws != null) await ws.close();
+      if (pc != null) await pc.close();
       socketEvent.innerText = "連接中...";
-      socket = InitialWS();
-    }
 
-    // 初始化ws
-    function InitialWS() {
-      console.log(`準備連線至ws://${url.value}`);
-      const socket = new WebSocket(`ws://${url.value}`);
-      //socket.binaryType = "arraybuffer";
+      pc = new RTCPeerConnection(/*{ iceServers: [{ urls: STUN_URL }] }*/);
 
-      // 連接開啟
-      socket.addEventListener("open", function (event) {
-        console.log("連接到WebSocket伺服器");
-        socketEvent.innerText = "連接到WebSocket伺服器";
-      });
+      pc.ontrack = (evt) =>
+        (document.querySelector("#videoCtl").srcObject = evt.streams[0]);
+      pc.onicecandidate = (evt) =>
+        evt.candidate && ws.send(JSON.stringify(evt.candidate));
 
-      socket.addEventListener("close", function (event) {
-        console.log("連接已關閉");
-        socketEvent.innerText = "連接已關閉";
-      });
+      // Diagnostics.
+      pc.onicegatheringstatechange = () =>
+        console.log("onicegatheringstatechange: " + pc.iceGatheringState);
+      pc.oniceconnectionstatechange = () =>
+        console.log("oniceconnectionstatechange: " + pc.iceConnectionState);
+      pc.onsignalingstatechange = () =>
+        console.log("onsignalingstatechange: " + pc.signalingState);
+      pc.onconnectionstatechange = () =>
+        console.log("onconnectionstatechange: " + pc.connectionState);
 
-      // 聆聽訊息
-      socket.addEventListener("message", function (event) {
+      ws = new WebSocket(document.querySelector("#websockurl").value, []);
+      ws.onmessage = async function (evt) {
         console.log("來自伺服器的訊息");
-        //const base64_img = `data:image/jpg;base64,${event.data}`;
-        //frameBuffer.push(base64_img);
-        //console.log(frameBuffer.length);
+        console.log("Here is ws.onmessage.");
+        if (/^[\{"'\s]*candidate/.test(evt.data)) {
+          pc.addIceCandidate(JSON.parse(evt.data));
+        } else {
+          await pc.setRemoteDescription(
+            new RTCSessionDescription(JSON.parse(evt.data))
+          );
+          console.log("remote sdp:\n" + pc.remoteDescription.sdp);
+          pc.createAnswer()
+            .then((answer) => pc.setLocalDescription(answer))
+            .then(() => ws.send(JSON.stringify(pc.localDescription)));
+        }
+        console.log("Here is the end of ws.onmessage.");
+      };
 
-        const arrayBuffer = event.data;
-        // 將 arrayBuffer 轉換為 Blob
-        const blob = new Blob([arrayBuffer], { type: "image/jpg" });
-        displayImage(blob);
-      });
-
-      socket.addEventListener("error", function (event) {
-        console.log("連線出現錯誤", event);
-        socketEvent.innerText = "連線出現錯誤";
-      });
-
-      //讀取輸入
-      screenCapture.addEventListener("click", function (event) {
-        MouseEvent(event, 1);
-      });
-
-      screenCapture.addEventListener("dblclick", function (event) {
-        MouseEvent(event, 3);
-      });
-
-      screenCapture.addEventListener("contextmenu", function (event) {
-        event.preventDefault();
-        MouseEvent(event, 2);
-      });
-
-      document.addEventListener("keydown", function (event) {
-        event.preventDefault();
-        MouseEvent(event, 4);
-      });
-
-      screenCapture.addEventListener("mousemove", function (event) {
-        //MouseEvent(event, 5);
-      });
-
-      function MouseEvent(event, type) {
-        const data = {
-          Type: type,
-          X: event.x - screenCapture.x,
-          Y: event.y - screenCapture.y,
-          Key: event.keyCode,
-        };
-        var jsonData = JSON.stringify(data);
-        sendMessage(jsonData);
-      }
-
-      // 發送訊息到伺服器
-      function sendMessage(message) {
-        socket.send(message);
-      }
-
-      // 關閉連接
-      function closeConnection() {
-        socket.close();
-      }
-      return socket;
+      InitialWSRemote();
     }
 
-    function displayImage(blob) {
-      // 創建 Blob URL
-      const url = URL.createObjectURL(blob);
-      // 將 Blob URL 設定到 img 標籤的 src 屬性
-      screenCapture.src = url;
-
-      // 設置定時器，釋放 Blob URL 資源
-      setTimeout(() => URL.revokeObjectURL(url), 50); // 50毫秒後釋放資源
+    async function closePeer() {
+      await pc.close();
+      await ws.close();
     }
   </script>
-</html>
+</head>
+<body>
+  <div id="ScreenCapture">
+    <video autoplay="autoplay" id="videoCtl" width="960" height="540"></video>
+  </div>
+
+  <div>
+    <input type="text" id="websockurl" size="40" />
+    <button type="button" class="btn btn-success" onclick="start();">
+      Start
+    </button>
+    <button type="button" class="btn btn-success" onclick="closePeer();">
+      Close
+    </button>
+  </div>
+  <hr />
+  <div>
+    <div id="socketEvent"></div>
+  </div>
+</body>
+
+<script>
+  document.querySelector("#websockurl").value = WEBSOCKET_URL;
+  const socketEvent = document.getElementById("socketEvent");
+  const vctl = document.getElementById("videoCtl");
+
+  function InitialWSRemote() {
+    // 連接開啟
+    ws.addEventListener("open", function (event) {
+      console.log("連接到WebSocket伺服器");
+      socketEvent.innerText = "連接到WebSocket伺服器";
+    });
+
+    ws.addEventListener("close", function (event) {
+      console.log("連接已關閉");
+      socketEvent.innerText = "連接已關閉";
+    });
+
+    ws.addEventListener("error", function (event) {
+      console.log("連線出現錯誤", event);
+      socketEvent.innerText = "連線出現錯誤";
+    });
+
+    //讀取輸入
+    vctl.addEventListener("click", function (event) {
+      MouseEvent(event, 1);
+    });
+
+    vctl.addEventListener("dblclick", function (event) {
+      MouseEvent(event, 3);
+    });
+
+    vctl.addEventListener("contextmenu", function (event) {
+      MouseEvent(event, 2);
+    });
+
+    document.addEventListener("keydown", function (event) {
+      MouseEvent(event, 4);
+    });
+
+    vctl.addEventListener("mousemove", function (event) {
+      //MouseEvent(event, 5);
+    });
+
+    function MouseEvent(event, type) {
+      event.preventDefault();
+      let x = event.x - 8;
+      let y = event.y - 8;
+      if (x > vctl.getAttribute("width")) x = vctl.getAttribute("width");
+      if (y > vctl.getAttribute("height")) y = vctl.getAttribute("height");
+      const data = {
+        Type: type,
+        X: x,
+        Y: y,
+        Key: event.keyCode,
+      };
+      var jsonData = JSON.stringify(data);
+      sendMessage(jsonData);
+    }
+
+    // 發送訊息到伺服器
+    function sendMessage(message) {
+      // 指定傳送請求服務的Path
+      ws.send(message);
+    }
+  }
+</script>
