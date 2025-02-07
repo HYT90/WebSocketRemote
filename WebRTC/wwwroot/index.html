@@ -7,13 +7,14 @@
     const STUN_URL = "stun:stun.sipsorcery.com";
     var ip = "192.168.43.96";
     var WEBSOCKET_URL = `ws://${ip}:8081/`;
+    var retry;
 
     var pc, ws;
 
     async function start() {
+      retry = false;
       if (ws != null) await ws.close();
       if (pc != null) await pc.close();
-
       socketEvent.innerText = "連接中...";
 
       pc = new RTCPeerConnection(/*{ iceServers: [{ urls: STUN_URL }] }*/);
@@ -55,6 +56,7 @@
     }
 
     async function closePeer() {
+      retry = false;
       await pc.close();
       await ws.close();
     }
@@ -62,7 +64,7 @@
 </head>
 <body>
   <div id="ScreenCapture">
-    <video autoplay="autoplay" id="videoCtl" width="960" height="540"></video>
+    <video autoplay="autoplay" id="videoCtl" width="0" height="0"></video>
   </div>
 
   <div>
@@ -81,7 +83,6 @@
 </body>
 
 <script>
-  let init = true;
   document.querySelector("#websockurl").value = WEBSOCKET_URL;
   const socketEvent = document.getElementById("socketEvent");
   const vctl = document.getElementById("videoCtl");
@@ -91,6 +92,7 @@
     ws.addEventListener("open", function (event) {
       console.log("連接到WebSocket伺服器");
       socketEvent.innerText = "連接到WebSocket伺服器";
+      retry = true;
 
       // 初始化畫面Size
       fetch(`http://${ip}/GetScreenSize`)
@@ -101,41 +103,44 @@
           vctl.setAttribute("width", data.width);
           vctl.setAttribute("height", data.height);
         });
+      InitiVideoCtl();
     });
 
     ws.addEventListener("close", function (event) {
-      console.log("連接已關閉");
-      socketEvent.innerText = "連接已關閉";
+      console.log("連線已關閉");
+      socketEvent.innerText = "連線已關閉";
+      Reconnect(retry);
     });
 
     ws.addEventListener("error", function (event) {
       console.log("連線出現錯誤", event);
-      socketEvent.innerText = "嘗試重新連線...";
-      start();
     });
+  }
 
+  function InitiVideoCtl() {
     //讀取輸入
-    vctl.addEventListener("click", function (event) {
+    vctl.onclick = function (event) {
       MouseEvent(event, 1);
-    });
+    };
 
-    vctl.addEventListener("dblclick", function (event) {
+    vctl.ondblclick = function (event) {
       MouseEvent(event, 3);
-    });
+    };
 
-    vctl.addEventListener("contextmenu", function (event) {
+    vctl.oncontextmenu = function (event) {
       MouseEvent(event, 2);
-    });
+    };
 
-    document.addEventListener("keydown", function (event) {
+    document.onkeydown = function (event) {
       MouseEvent(event, 4);
-    });
+    };
 
-    vctl.addEventListener("mousemove", function (event) {
-      //MouseEvent(event, 5);
-    });
+    vctl.onmousemove = function (event) {
+      MouseEvent(event, 5);
+    };
 
     function MouseEvent(event, type) {
+      if (!retry) return;
       event.preventDefault();
       let x = event.x - 8;
       let y = event.y - 8;
@@ -156,5 +161,11 @@
       // 指定傳送請求服務的Path
       ws.send(message);
     }
+  }
+
+  function Reconnect(reconnect) {
+    if (reconnect == false) return;
+    socketEvent.innerText = "即將嘗試重新連線...";
+    start();
   }
 </script>

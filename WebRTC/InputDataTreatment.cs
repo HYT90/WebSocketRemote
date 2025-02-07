@@ -98,7 +98,7 @@ namespace WebRTCRemote
                     break;
                 //mouse move
                 case 5:
-                    //MouseClick(data, MouseEvent.MOUSEEVENTF_MOVE);
+                    MouseMove(data, MouseEvent.MOUSEEVENTF_MOVE);
                     break;
             }
         }
@@ -107,6 +107,14 @@ namespace WebRTCRemote
         {
             float screenX = (float)data.X.Value * offset;
             float screenY = (float)data.Y.Value * offset;
+            SetCursorPos((int)screenX, (int)screenY);
+            mouse_event((uint)mouseEvent, (uint)screenX, (uint)screenY, 0, 0);
+        }
+        
+        private static void MouseMove(Data data, MouseEvent mouseEvent)
+        {
+            float screenX = (float)(data.X.Value/2.5f)*0.85f;
+            float screenY = (float)(data.Y.Value/2.5f) * 0.85f;
             SetCursorPos((int)screenX, (int)screenY);
             mouse_event((uint)mouseEvent, (uint)screenX, (uint)screenY, 0, 0);
         }
