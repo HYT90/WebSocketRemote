@@ -168,6 +168,13 @@ namespace WebRTCRemote
 
         public static void Run(IPAddress ip, int webRTCPort)
         {
+            IPEndPoint ep = new(ip, port);
+            endpoint = ep.ToString();
+
+            Task.Run(WebSocketRun);
+
+            
+
             Console.WriteLine("WebRTC Demo");
 
             // Initialise FFmpeg librairies
