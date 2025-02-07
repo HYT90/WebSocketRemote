@@ -32,6 +32,7 @@
 
       ws = new WebSocket(document.querySelector("#websockurl").value, []);
       ws.onmessage = async function (evt) {
+        console.log("Here is ws.onmessage.");
         if (/^[\{"'\s]*candidate/.test(evt.data)) {
           pc.addIceCandidate(JSON.parse(evt.data));
         } else {
@@ -43,6 +44,7 @@
             .then((answer) => pc.setLocalDescription(answer))
             .then(() => ws.send(JSON.stringify(pc.localDescription)));
         }
+        console.log("Here is the end of ws.onmessage.");
       };
     }
 
