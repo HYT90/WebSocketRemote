@@ -5,13 +5,15 @@
 
   <script type="text/javascript">
     const STUN_URL = "stun:stun.sipsorcery.com";
-    var WEBSOCKET_URL = "ws://192.168.0.17:8081/";
+    var ip = "192.168.43.96";
+    var WEBSOCKET_URL = `ws://${ip}:8081/`;
 
     var pc, ws;
 
     async function start() {
       if (ws != null) await ws.close();
       if (pc != null) await pc.close();
+
       socketEvent.innerText = "連接中...";
 
       pc = new RTCPeerConnection(/*{ iceServers: [{ urls: STUN_URL }] }*/);
@@ -79,6 +81,7 @@
 </body>
 
 <script>
+  let init = true;
   document.querySelector("#websockurl").value = WEBSOCKET_URL;
   const socketEvent = document.getElementById("socketEvent");
   const vctl = document.getElementById("videoCtl");
@@ -88,6 +91,16 @@
     ws.addEventListener("open", function (event) {
       console.log("連接到WebSocket伺服器");
       socketEvent.innerText = "連接到WebSocket伺服器";
+
+      // 初始化畫面Size
+      fetch(`http://${ip}/GetScreenSize`)
+        .then((response) => {
+          return response.json();
+        })
+        .then((data) => {
+          vctl.setAttribute("width", data.width);
+          vctl.setAttribute("height", data.height);
+        });
     });
 
     ws.addEventListener("close", function (event) {
@@ -97,7 +110,8 @@
 
     ws.addEventListener("error", function (event) {
       console.log("連線出現錯誤", event);
-      socketEvent.innerText = "連線出現錯誤";
+      socketEvent.innerText = "嘗試重新連線...";
+      start();
     });
 
     //讀取輸入

@@ -7,8 +7,8 @@ namespace WebRTCRemote
     public static class ScreenStream
     {
         //screen capture size
-        static int height;
-        static int width;
+        static int height = Constants.ScreenHeight;
+        static int width = Constants.ScreenWidth;
 
         private static float MouseClickPosRatio = Constants.DisplayRatio * Constants.DisplayZoomOut;
 
@@ -53,20 +53,6 @@ namespace WebRTCRemote
                 Cursor cursor = new Cursor(cursorInfo.hCursor);
                 // 顯示並修正滑鼠位置
                 cursor.Draw(g, new Rectangle((int)((float)cursorInfo.ptScreenPos.X * Constants.DisplayRatio), (int)((float)cursorInfo.ptScreenPos.Y * Constants.DisplayRatio), cursor.Size.Width, cursor.Size.Height));
-            }
-        }
-
-        static ScreenStream() 
-        {
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DesktopMonitor");
-            foreach (ManagementObject obj in searcher.Get())
-            {
-                if (obj["ScreenHeight"] != null && obj["ScreenWidth"] != null)
-                {
-                    height = Int32.Parse(obj["ScreenHeight"].ToString()!);
-                    width = Int32.Parse(obj["ScreenWidth"].ToString()!);
-                }
-
             }
         }
 

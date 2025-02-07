@@ -7,6 +7,7 @@ using System.Drawing.Text;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using System.Text.Json;
 
 // 設置專案檔案 (.csproj) 設置類型為 WinExe
 // <OutputType>WinExe</OutputType>
@@ -27,6 +28,11 @@ AllocConsole();
 // 如果 AllocConsole() 函式呼叫失敗，錯誤碼將儲存到 LastError 中，並可以通過 Marshal.GetLastWin32Error() 來獲取。
 int errorCode = Marshal.GetLastWin32Error();
 
+Console.Write($"請輸入本機IP(或enter直接跳過，使用預設IP {Constants.IP} )：");
+string ip = Console.ReadLine();
+Constants.IP = ip.Equals(string.Empty) ? Constants.IP : ip;
+Console.WriteLine($"Web socket server will run at http://{Constants.IP}:{Constants.WebRTCPort}/");
+
 
 var host = new WebHostBuilder()
     .UseKestrel()
@@ -40,10 +46,10 @@ var host = new WebHostBuilder()
             var request = context.Request;
             var response = context.Response;
             string path = request.Path.Value;
-            if (path == "/help")
+            if (path == "/GetScreenSize")
             {
                 response.StatusCode = 200;
-                await response.WriteAsync("This is a WebRTCRemoteService.");
+                await response.WriteAsync($"{{\"height\":{Constants.ScreenHeight/Constants.DisplayZoomOut},\"width\":{Constants.ScreenWidth/Constants.DisplayZoomOut}}}");
             }
             else
             {
@@ -63,10 +69,6 @@ while (true)
 {
     try
     {
-        Console.Write($"請輸入本機IP(或enter直接跳過，使用預設IP {Constants.IP} )：");
-        string ip = Console.ReadLine();
-        Constants.IP = ip.Equals(string.Empty)? Constants.IP:ip;
-        Console.WriteLine($"Web socket server will run at http://{Constants.IP}:{Constants.WebRTCPort}/");
         //Server.InitalizeServer(address, port);
 //        //Server.InitalizeServer(IPAddress.Parse(Constants.IP), Constants.Port);
         //await Server.RunAsync();

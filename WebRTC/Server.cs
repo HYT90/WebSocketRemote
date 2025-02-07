@@ -341,7 +341,7 @@ namespace WebRTCRemote
                     if (primaryMonitor != null)
                     {
                         //videoSource = new FFmpegScreenSource(primaryMonitor.Path, primaryMonitor.Rect, 10);
-                        videoSource = new FFmpegScreenSource(primaryMonitor.Path, new Rectangle(0,0,1920,1080), 10);
+                        videoSource = new FFmpegScreenSource(primaryMonitor.Path, new Rectangle(0,0, Constants.ScreenWidth, Constants.ScreenHeight), 10);
                         videoSource.OnVideoSourceError += (msg) => PeerConnection.Close(msg);
                     }
                     else

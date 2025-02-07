@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Management;
 
 namespace WebRTCRemote
 {
@@ -16,6 +17,8 @@ namespace WebRTCRemote
         public const int TICKS_PER_SEC = 50;
         public const int MS_PER_TICK = 1000 / TICKS_PER_SEC;
 
+        public static readonly int ScreenHeight;
+        public static readonly int ScreenWidth;
         public const float DisplayRatio = 1.25f;
         public const float DisplayZoomOut = 2f;
 
@@ -24,6 +27,20 @@ namespace WebRTCRemote
         public static string ffmpegPath = GetffmpegPath();
         public const string CertPath = "../../../certificate.pfx";
         public static string CertPassword = Environment.GetEnvironmentVariable("certpw", EnvironmentVariableTarget.User)!;
+
+        static Constants()
+        {
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DesktopMonitor");
+            foreach (ManagementObject obj in searcher.Get())
+            {
+                if (obj["ScreenHeight"] != null && obj["ScreenWidth"] != null)
+                {
+                    ScreenHeight = Int32.Parse(obj["ScreenHeight"].ToString()!);
+                    ScreenWidth = Int32.Parse(obj["ScreenWidth"].ToString()!);
+                }
+
+            }
+        }
         private Constants() { }
 
         private static string GetffmpegPath()
