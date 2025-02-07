@@ -34,7 +34,10 @@
       pc.onconnectionstatechange = () =>
         console.log("onconnectionstatechange: " + pc.connectionState);
 
-      ws = new WebSocket(document.querySelector("#websockurl").value, []);
+      ip = document.querySelector("#websockurl").value;
+      WEBSOCKET_URL = `ws://${ip}:8081/`;
+
+      ws = new WebSocket(WEBSOCKET_URL, []);
       ws.onmessage = async function (evt) {
         console.log("來自伺服器的訊息");
         console.log("Here is ws.onmessage.");
@@ -83,7 +86,7 @@
 </body>
 
 <script>
-  document.querySelector("#websockurl").value = WEBSOCKET_URL;
+  document.querySelector("#websockurl").value = ip;
   const socketEvent = document.getElementById("socketEvent");
   const vctl = document.getElementById("videoCtl");
 
@@ -109,7 +112,7 @@
     ws.addEventListener("close", function (event) {
       console.log("連線已關閉");
       socketEvent.innerText = "連線已關閉";
-      Reconnect(retry);
+      Reconnect();
     });
 
     ws.addEventListener("error", function (event) {
@@ -136,7 +139,7 @@
     };
 
     vctl.onmousemove = function (event) {
-      MouseEvent(event, 5);
+      //MouseEvent(event, 5);
     };
 
     function MouseEvent(event, type) {
@@ -163,8 +166,9 @@
     }
   }
 
-  function Reconnect(reconnect) {
-    if (reconnect == false) return;
+  function Reconnect() {
+    // retry為false表示是由客戶端主動關閉連線
+    if (retry == false) return;
     socketEvent.innerText = "即將嘗試重新連線...";
     start();
   }

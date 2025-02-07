@@ -19,7 +19,6 @@ namespace WebRTCRemote
         private static HttpListener? httpListener;
         private static WebSocket? webSocket;
         private delegate void Handle(byte[] buffer, int size);
-        private static Handle handle = RemoteHandle.DataContentReceived;
 
         private Server() { }
 
@@ -86,7 +85,7 @@ namespace WebRTCRemote
                         if (result.Count>0)
                         {
                             // RemoteHandle.DataContentReceived
-                            handle(buffer, result.Count);
+                            RemoteHandle.DataContentReceived(buffer, result.Count);
                             //
                         }
                         //byte[] responseBuffer = Encoding.UTF8.GetBytes("Echo from server: " + message);
@@ -205,6 +204,7 @@ namespace WebRTCRemote
             exitMe.WaitOne();
         }
 
+        #region httplistener websocket 
         //private static async Task WebSocketRun()
         //{
         //    httpListener = new HttpListener();
@@ -266,7 +266,7 @@ namespace WebRTCRemote
         //    }
 
         //}
-
+        #endregion
 
         static private VIDEO_SOURCE VideoSourceType = VIDEO_SOURCE.SCREEN;
         static private AUDIO_SOURCE AudioSourceType = AUDIO_SOURCE.MICROPHONE;

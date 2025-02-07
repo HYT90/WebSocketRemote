@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace WebRTCRemote
 {
@@ -77,8 +79,16 @@ namespace WebRTCRemote
         static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
 
 
-        public static void Operation(Data data)
+        public static async Task Operation(string message)
         {
+            Data data = JsonSerializer.Deserialize<Data>(message);
+            if(data == null)
+            {
+                Console.WriteLine("----------------------------------");
+                Console.WriteLine("From client: ", message);
+                Console.WriteLine("----------------------------------");
+                return;
+            }
             switch (data.Type)
             {
                 //left click
@@ -98,7 +108,7 @@ namespace WebRTCRemote
                     break;
                 //mouse move
                 case 5:
-                    MouseMove(data, MouseEvent.MOUSEEVENTF_MOVE);
+                    //MouseMove(data, MouseEvent.MOUSEEVENTF_MOVE);
                     break;
             }
         }
