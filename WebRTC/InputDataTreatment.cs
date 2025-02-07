@@ -77,7 +77,7 @@ namespace WebRTCRemote
         static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
 
 
-        public static void Operation(Data data)
+        public static async Task Operation(Data data)
         {
             switch (data.Type)
             {

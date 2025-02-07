@@ -8,7 +8,7 @@ namespace WebRTCRemote
         private static Dictionary<int, Action<int>> operations = new Dictionary<int,Action<int>>();
 
 
-        public static void DataContentReceived(byte[] buffer, int Size)
+        public static async Task DataContentReceived(byte[] buffer, int Size)
         {
             var message = Encoding.UTF8.GetString(buffer, 0, Size);
             Data data = JsonSerializer.Deserialize<Data>(message);
@@ -17,7 +17,7 @@ namespace WebRTCRemote
             Console.WriteLine(message);
 
             // 建立一事件處理類別 處理輸入的 data 
-            InputDataTreatment.Operation(data);
+            await InputDataTreatment.Operation(data);
         }
     }
 }

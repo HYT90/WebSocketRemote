@@ -12,13 +12,13 @@ namespace WebRTCRemote
 {
     internal class WebSocketDeskHandle : WebRTCWebSocketPeer
     {
-        public Action<byte[], int> Handle;
+        public Func<byte[], int, Task> Handle;
 
-        protected override void OnMessage(MessageEventArgs e)
+        protected override async void OnMessage(MessageEventArgs e)
         {
             base.OnMessage(e);
             Console.WriteLine($"{DateTime.Now}: Receive some message from client.");
-            Handle(e.RawData, e.RawData.Length);
+            await Handle(e.RawData, e.RawData.Length);
         }
 
         protected override void OnOpen()
