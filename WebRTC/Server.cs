@@ -166,46 +166,30 @@ namespace WebRTCRemote
         }
 
 
-        public static void Run(IPAddress ip, int port, int webRTCPort)
+        public static void Run(IPAddress ip, int webRTCPort)
         {
-            IPEndPoint ep = new(ip, port);
-            endpoint = ep.ToString();
-
-            Task.Run(WebSocketRun);
-
-            
-
             Console.WriteLine("WebRTC Demo");
 
             // Initialise FFmpeg librairies
             FFmpegInit.Initialise(FfmpegLogLevelEnum.AV_LOG_PANIC, Constants.ffmpegPath);
 
             Console.WriteLine("WebRTC Get Started");
-            try
-            {
-                // Start web socket.
-                Console.WriteLine("Starting webRTC server...");
-                webSocketServer = new WebSocketServer(ip, webRTCPort);
 
-                //webSocketServer = new WebSocketServer(ip, webRTCPort, true);
-                //webSocketServer.SslConfiguration.ServerCertificate = new X509Certificate2(Constants.CertPath, Constants.CertPassword);
-                //webSocketServer.SslConfiguration.EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+            // Start web socket.
+            Console.WriteLine("Starting webRTC server...");
+            webSocketServer = new WebSocketServer(ip, webRTCPort);
 
-                webSocketServer.AddWebSocketService<WebRTCWebSocketPeer>("/", (peer) => peer.CreatePeerConnection = CreatePeerConnection);
+            //webSocketServer = new WebSocketServer(ip, webRTCPort, true);
+            //webSocketServer.SslConfiguration.ServerCertificate = new X509Certificate2(Constants.CertPath, Constants.CertPassword);
+            //webSocketServer.SslConfiguration.EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+
+            //webSocketServer.AddWebSocketService<WebRTCWebSocketPeer>("/", (peer) => peer.CreatePeerConnection = CreatePeerConnection);
+            //webSocketServer.AddWebSocketService<WebSocketDeskHandle>("/", (peer) => peer.Handle = RemoteHandle.DataContentReceived);
+            webSocketServer.AddWebSocketService<WebSocketDeskHandle>("/", (peer) => { peer.CreatePeerConnection = CreatePeerConnection; peer.Handle = RemoteHandle.DataContentReceived; });
 
 
-                webSocketServer.Start();
-                Console.WriteLine($"Waiting for web socket connections on {webSocketServer.Address}:{webSocketServer.Port}...");
-            }
-            catch(Exception ex) 
-            {
-                if(httpListener != null || httpListener.IsListening)
-                {
-                    httpListener.Stop();
-                    Console.WriteLine("--------------Http listener stop---------------");
-                }
-                throw;
-            }
+            webSocketServer.Start();
+            Console.WriteLine($"Waiting for web socket connections on {webSocketServer.Address}:{webSocketServer.Port}...");
             
 
 
@@ -221,67 +205,69 @@ namespace WebRTCRemote
             exitMe.WaitOne();
         }
 
-        private static async Task WebSocketRun()
-        {
-            httpListener = new HttpListener();
-            httpListener.Prefixes.Add($"http://{endpoint}/");
-            httpListener.Start();
-            Console.WriteLine($"Web socket server started at ws://{endpoint}/");
-            while (true)
-            {
-                Console.WriteLine("Listening...");
-                HttpListenerContext context = await httpListener.GetContextAsync();
-                if (context.Request.IsWebSocketRequest)
-                {
-                    Console.WriteLine($"{context.Request.RemoteEndPoint} has connected.");
-                    HttpListenerWebSocketContext wsContext = await context.AcceptWebSocketAsync(null);
-                    webSocket = wsContext.WebSocket;
+        //private static async Task WebSocketRun()
+        //{
+        //    httpListener = new HttpListener();
+        //    httpListener.Prefixes.Add($"http://{endpoint}/");
+        //    httpListener.Start();
+        //    Console.WriteLine($"Web socket server started at ws://{endpoint}/");
+        //    while (true)
+        //    {
+        //        Console.WriteLine("Listening...");
+        //        HttpListenerContext context = await httpListener.GetContextAsync();
+        //        if (context.Request.IsWebSocketRequest)
+        //        {
+        //            Console.WriteLine($"{context.Request.RemoteEndPoint} has connected.");
+        //            HttpListenerWebSocketContext wsContext = await context.AcceptWebSocketAsync(null);
+        //            webSocket = wsContext.WebSocket;
 
-                    await Echo();
-                }
-                else
-                {
-                    context.Response.StatusCode = 400;
-                    context.Response.Close();
-                }
-            }
-        }
-        private static async Task Echo()
-        {
-            byte[] buffer = new byte[Constants.PacketSize];
-            Console.WriteLine("Waiting for sending form client...");
-            try
-            {
-                while (webSocket.State == WebSocketState.Open)
-                {
-                    try
-                    {
-                        WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-                        if (result == null) break;
+        //            await Echo();
+        //        }
+        //        else
+        //        {
+        //            context.Response.StatusCode = 400;
+        //            context.Response.Close();
+        //        }
+        //    }
+        //}
+        //private static async Task Echo()
+        //{
+        //    byte[] buffer = new byte[Constants.PacketSize];
+        //    Console.WriteLine("Waiting for sending form client...");
+        //    try
+        //    {
+        //        while (webSocket.State == WebSocketState.Open)
+        //        {
+        //            try
+        //            {
+        //                WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+        //                if (result == null) break;
 
-                        if (result.MessageType == WebSocketMessageType.Close)
-                        {
-                            await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Client disconnected", CancellationToken.None);
-                        }
+        //                if (result.MessageType == WebSocketMessageType.Close)
+        //                {
+        //                    await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Client disconnected", CancellationToken.None);
+        //                }
 
-                        if (result.Count > 0)
-                        {
-                            RemoteHandle.DataContentReceived(buffer, result.Count);
-                        }
+        //                if (result.Count > 0)
+        //                {
+        //                    RemoteHandle.DataContentReceived(buffer, result.Count);
+        //                }
 
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Here is JSON part. {ex.Message}");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Here is from Echo(). {ex.Message}");
-            }
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                Console.WriteLine($"Here is JSON part. {ex.Message}");
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"Here is from Echo(). {ex.Message}");
+        //    }
 
-        }
+        //}
+
+
         static private VIDEO_SOURCE VideoSourceType = VIDEO_SOURCE.SCREEN;
         static private AUDIO_SOURCE AudioSourceType = AUDIO_SOURCE.MICROPHONE;
         static private String VideoSourceFile = @"C:\Users\USER\Videos\Captures\FPSDemo.mp4"; 

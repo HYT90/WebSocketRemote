@@ -5,13 +5,14 @@
 
   <script type="text/javascript">
     const STUN_URL = "stun:stun.sipsorcery.com";
-    let WEBSOCKET_URL = "ws://192.168.0.17:8081/";
+    var WEBSOCKET_URL = "ws://192.168.0.17:8081/";
 
     var pc, ws;
 
     async function start() {
       if (ws != null) await ws.close();
       if (pc != null) await pc.close();
+      socketEvent.innerText = "連接中...";
 
       pc = new RTCPeerConnection(/*{ iceServers: [{ urls: STUN_URL }] }*/);
 
@@ -32,6 +33,7 @@
 
       ws = new WebSocket(document.querySelector("#websockurl").value, []);
       ws.onmessage = async function (evt) {
+        console.log("來自伺服器的訊息");
         console.log("Here is ws.onmessage.");
         if (/^[\{"'\s]*candidate/.test(evt.data)) {
           pc.addIceCandidate(JSON.parse(evt.data));
@@ -46,6 +48,8 @@
         }
         console.log("Here is the end of ws.onmessage.");
       };
+
+      InitialWSRemote();
     }
 
     async function closePeer() {
@@ -70,51 +74,28 @@
   </div>
   <hr />
   <div>
-    <label>請輸入建立WebSocket連線的 IP:Port</label>
-    <input type="text" id="url" />
-    <input type="submit" onclick="connect()" value="連線" />
     <div id="socketEvent"></div>
   </div>
 </body>
 
 <script>
   document.querySelector("#websockurl").value = WEBSOCKET_URL;
-
-  let socket;
   const socketEvent = document.getElementById("socketEvent");
-  const url = document.getElementById("url");
   const vctl = document.getElementById("videoCtl");
-  let wsURL = "ws://192.168.0.17:8080/";
 
-  url.value = wsURL;
-  function connect() {
-    if (socket != null && (socket.readyState == 0 || socket.readyState == 1))
-      return;
-    socketEvent.innerText = "連接中...";
-    socket = InitialWS();
-  }
-
-  function InitialWS() {
-    console.log(`準備連線至${url.value}`);
-    const socket = new WebSocket(`${url.value}`);
-
+  function InitialWSRemote() {
     // 連接開啟
-    socket.addEventListener("open", function (event) {
+    ws.addEventListener("open", function (event) {
       console.log("連接到WebSocket伺服器");
       socketEvent.innerText = "連接到WebSocket伺服器";
     });
 
-    socket.addEventListener("close", function (event) {
+    ws.addEventListener("close", function (event) {
       console.log("連接已關閉");
       socketEvent.innerText = "連接已關閉";
     });
 
-    // 聆聽訊息
-    socket.addEventListener("message", function (event) {
-      console.log("來自伺服器的訊息");
-    });
-
-    socket.addEventListener("error", function (event) {
+    ws.addEventListener("error", function (event) {
       console.log("連線出現錯誤", event);
       socketEvent.innerText = "連線出現錯誤";
     });
@@ -158,13 +139,8 @@
 
     // 發送訊息到伺服器
     function sendMessage(message) {
-      socket.send(message);
+      // 指定傳送請求服務的Path
+      ws.send(message);
     }
-
-    // 關閉連接
-    function closeConnection() {
-      socket.close();
-    }
-    return socket;
   }
 </script>

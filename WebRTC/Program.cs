@@ -66,7 +66,7 @@ while (true)
         Console.Write($"請輸入本機IP(或enter直接跳過，使用預設IP {Constants.IP} )：");
         string ip = Console.ReadLine();
         Constants.IP = ip.Equals(string.Empty)? Constants.IP:ip;
-        Console.WriteLine($"Web socket server will run at http://{Constants.IP}:{Constants.Port}/");
+        Console.WriteLine($"Web socket server will run at http://{Constants.IP}:{Constants.WebRTCPort}/");
         //Server.InitalizeServer(address, port);
 //        //Server.InitalizeServer(IPAddress.Parse(Constants.IP), Constants.Port);
         //await Server.RunAsync();
