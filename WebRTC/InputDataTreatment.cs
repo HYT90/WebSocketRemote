@@ -82,13 +82,13 @@ namespace WebRTCRemote
         public static async Task Operation(string message)
         {
             Data data = JsonSerializer.Deserialize<Data>(message);
-            if(data == null)
-            {
-                Console.WriteLine("----------------------------------");
-                Console.WriteLine("From client: ", message);
-                Console.WriteLine("----------------------------------");
-                return;
-            }
+
+            Console.WriteLine("----------------------------------");
+            Console.WriteLine("From client: ", message);
+            Console.WriteLine("----------------------------------");
+
+            if(data == null) return;
+
             switch (data.Type)
             {
                 //left click
