@@ -28,10 +28,6 @@ AllocConsole();
 // 如果 AllocConsole() 函式呼叫失敗，錯誤碼將儲存到 LastError 中，並可以通過 Marshal.GetLastWin32Error() 來獲取。
 int errorCode = Marshal.GetLastWin32Error();
 
-Console.Write($"請輸入本機IP(或enter直接跳過，使用預設IP {Constants.IP} )：");
-string ip = Console.ReadLine();
-Constants.IP = ip.Equals(string.Empty) ? Constants.IP : ip;
-Console.WriteLine($"Web socket server will run at http://{Constants.IP}:{Constants.WebRTCPort}/");
 
 
 var host = new WebHostBuilder()
@@ -69,6 +65,10 @@ while (true)
 {
     try
     {
+        Console.Write($"請輸入本機IP(或enter直接跳過，使用預設IP {Constants.IP} )：");
+        string ip = Console.ReadLine();
+        Constants.IP = ip.Equals(string.Empty) ? Constants.IP : ip;
+        Console.WriteLine($"Web socket server will run at http://{Constants.IP}:{Constants.WebRTCPort}/");
         //Server.InitalizeServer(address, port);
 //        //Server.InitalizeServer(IPAddress.Parse(Constants.IP), Constants.Port);
         //await Server.RunAsync();
@@ -77,6 +77,7 @@ while (true)
     }
     catch (Exception ex)
     {
+        Console.WriteLine();
         Console.WriteLine("-------------------------");
         Console.WriteLine($"Error: {ex.Message}");
         Console.WriteLine("-------------------------");
