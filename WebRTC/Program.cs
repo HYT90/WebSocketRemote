@@ -2,12 +2,9 @@
 using System.Net;
 using System.Runtime.InteropServices;
 using WebRTCRemote;
-using Microsoft.AspNetCore.Owin;
-using System.Drawing.Text;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using System.Text.Json;
 
 // 設置專案檔案 (.csproj) 設置類型為 WinExe
 // <OutputType>WinExe</OutputType>
@@ -45,6 +42,7 @@ var host = new WebHostBuilder()
             if (path == "/GetScreenSize")
             {
                 response.StatusCode = 200;
+                // 請求獲取Server 顯示器尺寸
                 await response.WriteAsync($"{{\"height\":{Constants.ScreenHeight/Constants.DisplayZoomOut},\"width\":{Constants.ScreenWidth/Constants.DisplayZoomOut}}}");
             }
             else
