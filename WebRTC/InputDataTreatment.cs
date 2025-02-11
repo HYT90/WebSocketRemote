@@ -83,11 +83,14 @@ namespace WebRTCRemote
         {
             Data data = JsonSerializer.Deserialize<Data>(message);
 
-            Console.WriteLine("----------------------------------");
-            Console.WriteLine("From client: ", message);
-            Console.WriteLine("----------------------------------");
 
-            if(data == null) return;
+            if(data == null)
+            {
+                Console.WriteLine("----------------------------------");
+                Console.WriteLine("From client: ", message);
+                Console.WriteLine("----------------------------------");
+                return;
+            }
 
             switch (data.Type)
             {

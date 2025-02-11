@@ -5,6 +5,7 @@ using WebRTCRemote;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using WebSocketSharp;
 
 // 設置專案檔案 (.csproj) 設置類型為 WinExe
 // <OutputType>WinExe</OutputType>
@@ -55,6 +56,9 @@ var host = new WebHostBuilder()
 
 host.RunAsync();
 
+if(args.Length > 0)
+    Constants.IP = args[0];
+
 
 
 
@@ -65,7 +69,7 @@ while (true)
     {
         Console.Write($"請輸入本機IP(或enter直接跳過，使用預設IP {Constants.IP} )：");
         string ip = Console.ReadLine();
-        Constants.IP = ip.Equals(string.Empty) ? Constants.IP : ip;
+        Constants.IP = ip.IsNullOrEmpty() || !IPAddress.TryParse(ip, out IPAddress address) ? Constants.IP : ip;
         Console.WriteLine($"Web socket server will run at http://{Constants.IP}:{Constants.WebRTCPort}/");
         //Server.InitalizeServer(address, port);
 //        //Server.InitalizeServer(IPAddress.Parse(Constants.IP), Constants.Port);
@@ -79,6 +83,7 @@ while (true)
         Console.WriteLine("-------------------------");
         Console.WriteLine($"Error: {ex.Message}");
         Console.WriteLine("-------------------------");
+        Console.WriteLine();
     }
 }
 
