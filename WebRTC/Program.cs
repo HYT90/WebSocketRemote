@@ -67,6 +67,7 @@ while (true)
 {
     try
     {
+        Console.WriteLine();
         Console.Write($"請輸入本機IP(或enter直接跳過，使用預設IP {Constants.IP} )：");
         string ip = Console.ReadLine();
         Constants.IP = ip.IsNullOrEmpty() || !IPAddress.TryParse(ip, out IPAddress address) ? Constants.IP : ip;
