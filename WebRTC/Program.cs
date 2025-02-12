@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using WebSocketSharp;
+using System.Text.RegularExpressions;
 
 // 設置專案檔案 (.csproj) 設置類型為 WinExe
 // <OutputType>WinExe</OutputType>
@@ -56,8 +57,11 @@ var host = new WebHostBuilder()
 
 host.RunAsync();
 
-if(args.Length > 0)
+if(args.Length == 1 && Regex.Match(args[0], "^((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])$").Success)
+{
     Constants.IP = args[0];
+}
+
 
 
 
@@ -68,7 +72,7 @@ while (true)
     try
     {
         Console.WriteLine();
-        Console.Write($"請輸入本機IP(或enter直接跳過，使用預設IP {Constants.IP} )：");
+        Console.Write($"請輸入本機IPv4地址(或直接輸入以使用預設IP {Constants.IP} )：");
         string ip = Console.ReadLine();
         Constants.IP = ip.IsNullOrEmpty() || !IPAddress.TryParse(ip, out IPAddress address) ? Constants.IP : ip;
         Console.WriteLine($"Web socket server will run at http://{Constants.IP}:{Constants.WebRTCPort}/");
