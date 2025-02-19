@@ -7,10 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebRTCRemote", "WebRTC\WebR
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientConsoleRemote", "ClientConsoleRemote\ClientConsoleRemote.csproj", "{9A85701F-D579-4D97-9B3E-DC0801646EB9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScreenRecorderTutorial", "..\..\ScreenRecorderTutorial\ScreenRecorderTutorial\ScreenRecorderTutorial.csproj", "{3F15EF89-14C6-4E89-B482-CB61B34D745A}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameServer", "..\..\..\SelfMadeGameServer\GameServer\GameServer.csproj", "{BBC75874-682F-4113-9374-F365951AD51F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
