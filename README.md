@@ -6,7 +6,7 @@
 - **Kestrel實現輕量且高性能的網頁伺服器，處理HTTP請求和靜態文件。**
 
 ### 使用步驟
-1. clone repository
+1. clone
 ```
 git clone https://github.com/HYT90/WebRTCRemote.git
 ```
