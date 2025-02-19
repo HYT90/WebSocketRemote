@@ -5,10 +5,6 @@ VisualStudioVersion = 17.10.35013.160
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebRTCRemote", "WebRTC\WebRTCRemote.csproj", "{0CD1379E-1D62-4B86-976A-1F2771BC545F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScreenRecorderTutorial", "..\..\ScreenRecorderTutorial\ScreenRecorderTutorial\ScreenRecorderTutorial.csproj", "{3F15EF89-14C6-4E89-B482-CB61B34D745A}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameServer", "..\..\..\SelfMadeGameServer\GameServer\GameServer.csproj", "{BBC75874-682F-4113-9374-F365951AD51F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
