@@ -9,7 +9,7 @@
 ### 使用的套件
 
 本專案使用了以下套件：
-
+- [sipsorcery](https://github.com/sipsorcery-org/sipsorcery)
 - [SIPSorceryMedia.FFmpeg](https://github.com/sipsorcery-org/SIPSorceryMedia.FFmpeg)
 
 CLI中輸入以下指令
