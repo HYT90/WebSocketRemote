@@ -5,7 +5,13 @@
 - **通過WebSocket實現穩定的點對點連線，確保即時控制和數據傳輸的可靠性。**
 - **Kestrel實現輕量且高性能的網頁伺服器，處理HTTP請求和靜態文件。**
 
-### 使用步驟
+## 步驟
+### 使用的套件
+
+本專案使用了以下套件：
+
+- [SIPSorceryMedia.FFmpeg](https://github.com/sipsorcery-org/SIPSorceryMedia.FFmpeg)
+
 CLI中輸入以下指令
 1. clone
 ```
